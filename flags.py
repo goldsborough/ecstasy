@@ -1,12 +1,15 @@
 from enum import Enum, unique
 
+limit = 0
+
 class Hack:
 	last = None
 	start = 1
 
 class MetaEnum(Enum):
 	def __new__(cls, code):
-		
+		global limit
+
 		# Set the start of bit shifting to 
 		# the last value of the last enum
 		if cls is not Hack.last:
@@ -15,13 +18,15 @@ class MetaEnum(Enum):
 			Hack.last = cls
 
 		obj = object.__new__(cls)
-		obj._value_ = len(cls.__members__)
+		obj._value_ = Hack.start << len(cls.__members__)
 		obj.code = code
+
+		limit = obj._value_ << 1
 
 		return obj
 
-	def __init__(self, code):
-		self._value_ = Hack.start << self._value_
+	def __int__(self):
+		return self.value
 
 	def __str__(self):
 		return str(self.code)
@@ -40,6 +45,7 @@ class MetaEnum(Enum):
 
 @unique
 class Format(MetaEnum):
+	Reset = (0)
 	Bold = (1)
 	Dim = (2)
 	Underline = (4)

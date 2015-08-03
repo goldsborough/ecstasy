@@ -3,7 +3,20 @@ Custom error classes and a method to retrieve the line
 and column of a character with a (multi-line) string.
 """
 
-class ParseError(Exception):
+class EcstasyError(Exception):
+	def __init__(self, what):
+		"""
+		Initializes the EcstasyError super-class.
+		"""
+
+		self.what = what
+		super(EcstasyError, self).__init__(what)
+
+class EcstasySyntaxError(EcstasyError):
+	def __init__(self, what):
+		super(EcstasySyntaxError, self).__init__(what)
+
+class ParseError(EcstasyError):
 	"""
 	Raised when the string passed to the beautify()
 	method is ill-formed and includes some syntactic
@@ -15,14 +28,12 @@ class ParseError(Exception):
 
 	def __init__(self, what):
 		"""
-		Initializes the 'what' attribute and the Exception super-class.
+		Initializes the EcstasyError super-class.
 		"""
-
-		self.what = what
 
 		super(ParseError, self).__init__(what)
 
-class ArgumentError(Exception):
+class ArgumentError(EcstasyError):
 	"""
 	Raised when the positional argument for a phrase
 	is either out-of-range (i.e. there were fewer positional
@@ -36,13 +47,12 @@ class ArgumentError(Exception):
 
 	def __init__(self, what):
 		"""
-		Initializes the 'what' attribute and the Exception super-class.
+		Initializes the EcstasyError super-class.
 		"""
 
-		self.what = what
 		super(ArgumentError, self).__init__(what)
 
-class InternalError(Exception):
+class InternalError(EcstasyError):
 	"""
 	Raised when something went wrong internally, i.e.
 	within methods that are non-accessible via the
@@ -55,10 +65,8 @@ class InternalError(Exception):
 
 	def __init__(self, what):
 		"""
-		Initializes the 'what' attribute and the Exception super-class.
+		Initializes the EcstasyError super-class.
 		"""
-
-		self.what = what
 		super(InternalError, self).__init__(what)
 
 def position(string, index):

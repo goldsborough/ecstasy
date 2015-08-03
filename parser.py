@@ -1,32 +1,26 @@
-#!/usr/local/bin/python3
 # -*- coding: utf-8 -*-
 
 import re
+import collections
 
 from . import flags
-
-from .errors import ParseError, ArgumentError
+from . import errors
 
 class Phrase:
-	def __init__(self, string, opening, closing, arg=None):
+	def __init__(self, string, opening, closing, argument=None):
 		self.string = string
 		self.opening = opening
 		self.closing = closing
-		self.argument = arg
+		self.argument = argument
 
-def beautify(string, formats, always):
+def beautify(string, args, kwargs):
 	
+	positional, always = handle_arguments(args, kwargs)
+
 	phrases = parse(string)
 
 	if not phrases:
 		return string
-
-	# Expand the any tuples passed to
-	# the 'always' keyword arguments
-	for key, value in always.items():
-		if type(key) == tuple:
-			for i in key:
-				always[i] = value
 
 	counter = last = 0
 
@@ -38,20 +32,20 @@ def beautify(string, formats, always):
 
 		if phrase.argument is not None:
 			try:
-				codes = codify(formats[phrase.argument])
+				codes = codify(positional[phrase.argument])
 			except IndexError:
-				raise ArgumentError("Out of range positional argument" 
-								    " '{}'!".format(phrase.argument))
+				raise errors.ArgumentError("Out of range positional argument" 
+										   " '{}'!".format(phrase.argument))
 		elif phrase.string in always:
 			codes = codify(always[phrase.string])
 		else:
 			try:
-				codes = codify(formats[counter])
+				codes = codify(positional[counter])
 				counter += 1
 			except IndexError:
-				raise ArgumentError("At least {} formatting arguments "
-							        "required but {} were supplied"
-									"!".format(counter + 1, len(formats)))
+				raise errors.ArgumentError("At least {} formatting arguments "
+										   "required but {} were supplied"
+										   "!".format(counter + 1, len(positional)))
 
 		beauty += "\033[{}m{}\033[0m".format(codes, phrase.string)
 
@@ -62,7 +56,82 @@ def beautify(string, formats, always):
 
 	return beauty
 
+def handle_arguments(args, kwargs):
+	"""
+	Handles expansion and error-checking of positional
+	and keyword arguments passed to beautify().
+
+	Arguments:
+		args (tuple): The tuple of positional arguments passed to beautify().
+		kwargs (dict): The dictionary of keyword arguments passed to beautify().
+
+	Returns:
+		A 2-element tuple consisting of the positional flag-combinations.
+		at index 0 and the keyword ('always') flag-combinations at index 1.
+	"""
+
+	positional = []
+	always = kwargs
+
+	for argument in args:
+		# A flag is an instance of a subclass of
+		# flags.MetaEnum if it was passed alone
+		if isinstance(argument, flags.MetaEnum):
+			positional.append(argument)
+
+		# or is an integer if it was (bitwise) OR'd
+		# with another flag (a "flag combination")
+		elif isinstance(argument, int):
+			if argument < 0 or argument >= flags.limit:
+				raise EcstasySyntaxError("Flag value '{}' is out of range "
+										 "!".format(argument))
+			positional.append(argument)
+
+		# Dictionaries store 'always'-arguments
+		elif isinstance(argument, dict):
+			for key, value in argument.items():
+				# Simple 'always'-argument where one string
+				# is mapped to one formatting flag-combination
+				if type(key) == str:
+					always[key] = value
+
+				# Complex 'always'-argument with a
+				# tuple containing strings, each with the same
+				# flag-combination (same value)
+				elif type(key) == tuple:
+					for i in key:
+						always[i] = value
+				else:
+					raise TypeError("Key '{}' in dictionary "
+									"argument passed at index {} "
+									"is neither a string nor a tuple "
+									"of strings!".format(key, n))
+
+		elif isinstance(argument, collections.Iterable):
+			for element in argument:
+				try:
+					element = int(element)
+				except TypeError:
+					raise TypeError("Element {} is neither a flag nor a "
+									"(bitwise) OR'd flag-combination"
+									"!".format(element))
+
+				if element < 0 or element >= flags.limit:
+					raise EcstasySyntaxError("Flag value '{}' is out of range "
+											 "!".format(element))
+				positional.append(element)
+		else:
+			raise TypeError("Argument '{}' is neither a flag, a (bitwise) "
+							"OR'd flag-combination, a dictionary or an "
+							"iterable of positional arguments"
+							"!".format(argument))
+
+	return positional, always
+
+
 def parse(string):
+
+	#<Hello <0>World>>
 
 	phrases = [ ]
 
@@ -84,9 +153,9 @@ def parse(string):
 		if first == -1:
 			position = errors.position(string, opening)
 			word = string[opening + 1:].split()[0]
-			raise ParseError("No closing tag found for opening tag " +
-			 				 "at position" + position + 
-							 "just before the word '{}'!".format(word))
+			raise errors.ParseError("No closing tag found for opening tag " +
+					 				"at position" + position + 
+									"just before the word '{}'!".format(word))
 
 		# Look for another < or > tag, if < tag found
 		# next then first is really the closing
@@ -128,9 +197,11 @@ def parse(string):
 
 		else:
 			position = errors.position(string, opening + 1)
-			raise ArgumentError("Argument '{}' at position {} "
-								"is neither a number nor the escape "
-								"character!".format(substring, position))
+
+			raise errors.ArgumentError("Argument '{}' at position {} is "
+									   "neither a number nor the escape "
+									   "character ('\\')"
+									   "!".format(substring, position))
 
 		# For escaped and argument mode
 		opening = string.find("<", second.start() + 1)
@@ -145,5 +216,5 @@ def codify(combination):
 		for flag in enum:
 			if combination & flag:
 				codes.append(str(flag))
-				
+
 	return ";".join(codes)
