@@ -94,3 +94,4 @@ class Fill(MetaEnum):
 	Magenta = (105)
 	Cyan = (106)
 	White = (107)
+	
