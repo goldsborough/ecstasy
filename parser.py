@@ -12,19 +12,20 @@ class Phrase:
 				 opening=None,
 				 closing=None,
 				 string=None,
-				 argument=None,
-				 style=None):
+				 arguments=[],
+				 style=None,
+				 nested=[]):
 
 		self.string = string
 
 		self.opening = opening
 		self.closing = closing
 
-		self.argument = argument
+		self.arguments = arguments
 
 		self.style = style
 
-		self.nested = []
+		self.nested = nested
 
 	def __str__(self):
 		return self.string
@@ -37,6 +38,9 @@ class Parser:
 		self.positional = self.process_flags(args)
 
 		self.tags = re.compile(r"[<>]")
+
+		# For positional arguments
+		self.argument = re.compile(r"(\d,?)+$")
 
 	def process_flags(self, args):
 
@@ -104,7 +108,7 @@ class Parser:
 		if not phrases:
 			return string
 
-		s = lambda p: "{}, {{{}}}, [{}]".format(p.string, p.argument, len(p.nested))
+		s = lambda p: "{}, {{{}}}, [{}]".format(p.string, p.arguments, len(p.nested))
 
 		f = lambda p, d=1: s(p) + "\n" + "\t"*d + ("\n" + "\t" * d).join(f(i,d+1) for i in p.nested) if p.nested else s(p)
 
@@ -119,17 +123,18 @@ class Parser:
 
 		#return self.stringify(string, phrases)
 
-	def parse(self, string, phrase=None):
+	def parse(self, string, root=None):
 
-		# When phrase is None (at the first call)
+		# When parent is None (at the first call)
 		# we return a list of phrase, else this 
 		# function will return a phrase object
 		# this is because there is no 'root' phrase
-		if phrase:
-			tag = self.tags.search(string, phrase.opening + 1)
-		else:
+		if not root:
 			phrases = []
-			tag = self.tags.search(string)
+
+		tag = self.tags.search(string)
+
+		print(1, string)
 
 		while tag:
 			if tag.group() == "<":
@@ -156,39 +161,43 @@ class Parser:
 						tag = self.tags.search(string, tag.start())
 						continue
 
-				# Initialize the Phrase passed on with its opening
-				# tag position. It is then returned with all attributes
-				# set and possibly with more nested phrases
 				child = Phrase(opening)
-				string, child = self.parse(string, child)
 
-				if phrase:
-					phrase.nested.append(child)
+				escaped, child = self.parse(string[opening + 1:], child)
+
+				string = string[:opening + 1]
+				string += escaped
+				string += string[opening + child.closing + 2:]
+
+				if root:
+					root.nested.append(child)
 				else:
 					phrases.append(child)
 
 				tag = self.tags.search(string, child.closing + 1)
 
 			# tag is closing ('>')
-			elif phrase:
+			elif root:
 
 				print("Closing tag ('>') at position "
 							  "{}".format(tag.start()))
 
 				# Whatever is between the opening tag and this closing tag
-				substring = string[phrase.opening + 1 : tag.start()]
+				substring = string[: tag.start()]
 
 				print("Substring " + substring)
 
-				# Positional argument <x>
-				if substring.isdigit():
+				# Positional argument <^(\d,?)+$>
+				if self.argument.match(substring):
 
-					print("Found positional argument '{}' at position "
-						  "{}".format(substring, phrase.opening + 1))
+					print("Found positional argument(s) '{}' at position "
+						  "{}".format(substring, root.opening + 1))
 
-					phrase.argument = int(substring)
+					root.arguments = [int(i) for i in substring.split(",")]
 
 					tag = self.tags.search(string, tag.end())
+
+
 
 				# Escape-character to escape the closing tag (/>)
 				elif substring.endswith("\\"):
@@ -200,28 +209,37 @@ class Parser:
 					# closing tag and thus we can return the phrase.
 					if substring[:-1].endswith("\\"):
 
-						# Offset because we removed the escape character
-						phrase.closing = tag.start() - 1
+						# The closing position should be in the same scope
+						# as the scope of the opening position (scope in
+						# the sense of to which phrase the positions are
+						# relative to). -1 due to the escape character but
+						# + 1 because index 0 is phrase.opening + 1
+						root.closing = root.opening + tag.start()
 
-						phrase.string = string[phrase.opening + 1 : phrase.closing]
+						if root.arguments:
+							opening = substring.find(">") + 1
+						else:
+							opening = 0
 
-						return string, phrase
+						root.string = string[opening : tag.start() - 1]
+
+						return string, root
 
 					# tag.start() is now one index passed the closing tag
 					tag = self.tags.search(string, tag.start())
 
 				else:
-					phrase.closing = tag.start()
+					root.closing = root.opening + 1 + tag.start()
 
-					if phrase.argument is None:
-						phrase.string = substring
+					if root.arguments is None:
+						root.string = substring
 					else:
 						# The substring should not include the argument
-						phrase.string = substring[substring.find(">") + 1:]
+						root.string = substring[substring.find(">") + 1:]
 
-					print("New phrase '{}'".format(phrase))
+					print("New phrase '{}'".format(root))
 
-					return string, phrase
+					return string, root
 
 			else:
 				# Replace escape character
@@ -238,23 +256,22 @@ class Parser:
 
 				tag = self.tags.search(string, tag.end())
 
-		if not phrase:
+		if not root:
 			return string, phrases
 
 		# If this is not the first stack-depth the function should
 		# have returned upon finding a non-argument closing tag,
 		# i.e. we should never have gotten here.
-		position = errors.position(string, phrase.opening)
 		word = re.search(r"([\w\s]+)(?![\d]*>[\w\s]+>)",
-					    string[phrase.opening + 1:])
+					     string[root.opening + 1:])
 
-		raise errors.ParseError("No closing tag found for opening tag "
-								"at position {}, right after '{}'"
+		raise errors.ParseError("No closing tag found for "
+								"opening tag after expression '{}'"
 								"!".format(position, word.group()))
 
 	def stringify(self, string, phrases, parent=None):
 
-		counter = last = 0
+		position = last = 0
 
 		beauty = ""
 
@@ -262,25 +279,35 @@ class Parser:
 
 			beauty += string[last : phrase.opening]
 
-			if phrase.argument is not None:
-				try:
-					codes = self.codify(self.positional[phrase.argument])
-				except IndexError:
-					raise errors.ArgumentError("Out of range positional "
-											   "argument '{}'"
-											   "!".format(phrase.argument))
+			if phrase.arguments:
+				combination = 0
+				for n, i in enumerate(phrase.arguments):
+					try:
+						combination |= self.positional[i]
+					except IndexError:
+						raise errors.ArgumentError("Positional argument '{}' "
+							 					   "(index {}) is out of"
+							 					   "range!".format(i, n))
+				phrase.style = self.codify(combination)
+
 			elif phrase.string in self.always:
-				codes = self.codify(self.always[phrase.string])
+				phrase.style = self.codify[self.always[phrase.string]]
+
 			else:
 				try:
-					codes = self.codify(self.positional[counter])
-					counter += 1
+					self.style = self.codify(self.positional[position])
+					position += 1
 				except IndexError:
-					raise errors.ArgumentError("At least {} formatting "
-											   "arguments required but {} "
+					number = errors.number(position + 1)
+					raise errors.ArgumentError("Requested {} formatting "
+											   "argument but only {} were"
 											   "were supplied"
-											   "!".format(counter + 1,
+											   "!".format(number,
 											   			  len(positional)))
+			if phrase.nested:
+				phrase.string = self.stringify(phrase.string,
+											   phrase.nested,
+											   parent=phrase)
 
 			beauty += "\033[{}m{}\033[0m".format(codes, phrase.string)
 
