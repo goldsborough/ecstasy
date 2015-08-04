@@ -118,9 +118,9 @@ def number(n):
 	n = str(n)
 
 	if n.startswith("8") or n[:len(n) % 3] == "11":
-		article = "An "
+		article = "an "
 	else:
-		article = "A "
+		article = "a "
 
 	if n.endswith("1") and n != "11":
 		suffix = "-st"
