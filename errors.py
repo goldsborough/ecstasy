@@ -86,11 +86,18 @@ def position(string, index):
 	"""
 
 	if index < 0 or index >= len(string):
-		raise InternalError("Out-of-range index passed to position()!")
+		raise InternalError("Out-of-range index passed to errors.position!")
 
 	before = 0
 
-	for n, line in enumerate(string.split("\n")):
+	lines = string.split("\n")
+
+	# If there only is one single line the
+	# line:index format wouldn't be so intuitive
+	if len(lines) == 1:
+		return str(index)
+
+	for n, line in enumerate(lines):
 		# Note that we really want > and not
 		# >= because the length is 1-indexed
 		# while the index is not, i.e. the

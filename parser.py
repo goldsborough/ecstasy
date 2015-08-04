@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import re
+import warnings
 import collections
 
 from . import flags
@@ -8,24 +9,36 @@ from . import errors
 
 class Phrase:
 	def __init__(self,
-				 string,
-				 opening,
-				 closing,
-				 argument=None):
+				 opening=None,
+				 closing=None,
+				 string=None,
+				 argument=None,
+				 style=None):
 
 		self.string = string
+
 		self.opening = opening
 		self.closing = closing
+
 		self.argument = argument
-		self.style = None
+
+		self.style = style
+
+		self.nested = []
+
+	def __str__(self):
+		return self.string
 
 class Parser:
 	def __init__(self, args, kwargs):
 
 		self.always = kwargs
-		self.positional = self.handle_arguments(args)
 
-	def handle_arguments(self, args):
+		self.positional = self.process_flags(args)
+
+		self.tags = re.compile(r"[<>]")
+
+	def process_flags(self, args):
 
 		positional = []
 
@@ -86,96 +99,158 @@ class Parser:
 
 	def beautify(self, string):
 
-		phrases = self.parse(string)
+		string, phrases = self.parse(string)
 
 		if not phrases:
 			return string
 
-		return self.stringify(string, phrases)
+		s = lambda p: "{}, {{{}}}, [{}]".format(p.string, p.argument, len(p.nested))
 
-	def parse(self, string):
+		f = lambda p, d=1: s(p) + "\n" + "\t"*d + ("\n" + "\t" * d).join(f(i,d+1) for i in p.nested) if p.nested else s(p)
 
-		#<Hello <World> waffles>
-		#<Hello <World <what> is> going <on> <with <you> today> girl!>
-		#<1 \> 0>
-		#<Hello>
+		print("")
 
-		phrases = [ ]
+		for i in phrases:
+			print(f(i))
 
-		opening = string.find("<")
+		print("")
 
-		tags = re.compile(r"[<>]")
+		print(string)
 
-		opened = 0
+		#return self.stringify(string, phrases)
 
-		while opening != -1:
+	def parse(self, string, phrase=None):
 
-			# Check for escaping
-			if string[opening - 1] == "\\":
-				opening = string.find("<", opening + 1)
-				continue
+		# When phrase is None (at the first call)
+		# we return a list of phrase, else this 
+		# function will return a phrase object
+		# this is because there is no 'root' phrase
+		if phrase:
+			tag = self.tags.search(string, phrase.opening + 1)
+		else:
+			phrases = []
+			tag = self.tags.search(string)
 
-			# Look for the substring closing tag (either the
-			# closing tag of the argument or of the phrase)
-			first = string.find(">", opening + 1)
+		while tag:
+			if tag.group() == "<":
+				opening = tag.start()
 
-			if first == -1:
-				position = errors.position(string, opening)
-				word = string[opening + 1:].split()[0]
-				raise errors.ParseError("No closing tag found for opening tag " +
-						 				"at position " + position + 
-										"just before the word '{}'!".format(word))
+				print("Opening tag ('<') at position {}".format(opening))
 
-			# Look for another < or > tag, if < tag found
-			# next then first is really the closing
-			# tag of a phrase, else if > found then first
-			# is the end of the argument group (e.g. <0>...>),
-			# after which second.start() is the real closing tag
-			second = tags.search(string, first + 1)
+				# Check for escaping
+				if string[opening - 1] == "\\":
+					# Remove the escape character
+					string = string[:opening - 1] + string[opening:]
 
-			# Whatever is between the opening tag and the first 
-			# closing tag. This can either be the phrase or the
-			# positional argument
-			substring = string[opening + 1 : first]
+					# When removing the escape character, the
+					# opening tag index is pushed one back
+					opening -= 1
 
-			# Normal mode, no positional argument
-			if not second or second.group() == "<":
-				phrases.append(Phrase(substring,
-									  opening,
-									  first))
-				if second:
-					# Since we already have it
-					opening = second.start()
-					continue
-				break
+					# If the escape character was not itself (double)
+					# escaped we can look for the next tag
+					if opening == 0 or string[opening - 1] != "\\":
 
-			# Escaped mode -> normal mode
-			elif substring[-1] == "\\":
-				# Get rid of escape character
-				phrase = substring[:-1] + string[first : second.start()]
-				phrases.append(Phrase(phrase,
-									  opening,
-									  second.start()))
+						print("Escaped opening tag at "
+							  "position {}".format(tag.start()))
 
-			# Argument mode, check for argument
-			elif substring.isdigit():
-				phrases.append(Phrase(string[first + 1 : second.start()],
-							   		  opening,
-							   		  second.start(),
-							   		  int(substring)))
+						tag = self.tags.search(string, tag.start())
+						continue
+
+				# Initialize the Phrase passed on with its opening
+				# tag position. It is then returned with all attributes
+				# set and possibly with more nested phrases
+				child = Phrase(opening)
+				string, child = self.parse(string, child)
+
+				if phrase:
+					phrase.nested.append(child)
+				else:
+					phrases.append(child)
+
+				tag = self.tags.search(string, child.closing + 1)
+
+			# tag is closing ('>')
+			elif phrase:
+
+				print("Closing tag ('>') at position "
+							  "{}".format(tag.start()))
+
+				# Whatever is between the opening tag and this closing tag
+				substring = string[phrase.opening + 1 : tag.start()]
+
+				print("Substring " + substring)
+
+				# Positional argument <x>
+				if substring.isdigit():
+
+					print("Found positional argument '{}' at position "
+						  "{}".format(substring, phrase.opening + 1))
+
+					phrase.argument = int(substring)
+
+					tag = self.tags.search(string, tag.end())
+
+				# Escape-character to escape the closing tag (/>)
+				elif substring.endswith("\\"):
+
+					# Get rid of the escape character either way
+					string = string[:tag.start() - 1] + string[tag.start():]
+
+					# Double-escape means this is really supposed to be a
+					# closing tag and thus we can return the phrase.
+					if substring[:-1].endswith("\\"):
+
+						# Offset because we removed the escape character
+						phrase.closing = tag.start() - 1
+
+						phrase.string = string[phrase.opening + 1 : phrase.closing]
+
+						return string, phrase
+
+					# tag.start() is now one index passed the closing tag
+					tag = self.tags.search(string, tag.start())
+
+				else:
+					phrase.closing = tag.start()
+
+					if phrase.argument is None:
+						phrase.string = substring
+					else:
+						# The substring should not include the argument
+						phrase.string = substring[substring.find(">") + 1:]
+
+					print("New phrase '{}'".format(phrase))
+
+					return string, phrase
 
 			else:
-				position = errors.position(string, opening + 1)
+				# Replace escape character
+				if tag.start() > 0 and string[tag.start() - 1] == "\\":
+					string = string[:tag.start() - 1] + string[tag.start():]
+				else:
+					# When the phrase is None at the start, there should not
+					# be a closing tag because none was ever opened. This is
+					# not actually an error, but we should warn about it.
+					position = errors.position(string, tag.start())
+					warnings.warn("Un-escaped '>' character at "
+							 	  "position {}".format(position),
+								  Warning)
 
-				raise errors.ArgumentError("Argument '{}' at position {} is "
-										   "neither a number nor the escape "
-										   "character ('\\')"
-										   "!".format(substring, position))
+				tag = self.tags.search(string, tag.end())
 
-			# For escaped and argument mode
-			opening = string.find("<", second.start() + 1)
+		if not phrase:
+			return string, phrases
 
-		return phrases
+		# If this is not the first stack-depth the function should
+		# have returned upon finding a non-argument closing tag,
+		# i.e. we should never have gotten here.
+		position = errors.position(string, phrase.opening)
+		word = re.search(r"([\w\s]+)(?![\d]*>[\w\s]+>)",
+					    string[phrase.opening + 1:])
+
+		raise errors.ParseError("No closing tag found for opening tag "
+								"at position {}, right after '{}'"
+								"!".format(position, word.group()))
 
 	def stringify(self, string, phrases, parent=None):
 
