@@ -25,18 +25,18 @@ THE SOFTWARE.
 """
 
 from . import parser
-from .flags import Color, Fill, Format
+from .flags import Color, Fill, Style
 
-def beautify(text, *args, **kwargs):
+def beautify(string, *args, **kwargs):
 	"""
 		Interfacing-method to the ecstasy package.
 
 		Arguments:
-			text: The string to beautify with ecstasy.
-			args: The positional arguments.
-			kwargs: The keyword ('always') arguments.
+			string (str): The string to beautify with ecstasy.
+			args (list): The positional arguments.
+			kwargs (dict): The keyword ('always') arguments.
 	"""
 
 	p = parser.Parser(args, kwargs)
-	return p.beautify(text)
+	return p.beautify(string)
 	

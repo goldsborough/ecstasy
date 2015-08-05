@@ -144,7 +144,7 @@ class MetaEnum(Enum):
 			The combination of the bitwise-OR-ed flags (int).
 		"""
 
-		return self.value & other.value	
+		return self.value & other.value
 
 	def __rand__(self, other):
 		"""
@@ -161,7 +161,7 @@ class MetaEnum(Enum):
 		return other & self.value
 
 @unique
-class Format(MetaEnum):
+class Style(MetaEnum):
 	"""
 	Special formatting flags pertaining to any style
 	alterations that do not involve color (but other
@@ -223,4 +223,24 @@ class Fill(MetaEnum):
 	Magenta = (105)
 	Cyan = (106)
 	White = (107)
-	
+
+def codify(combination):
+
+	"""
+	Gets escape-codes for flag combinations.
+
+	Arguments:
+		combination (int): Either a single integer-convertible flag
+						   or an OR'd flag-combination.
+	Returns:
+		A semi-colon-delimited string of appropriate escape sequences.
+	"""
+
+	codes = []
+
+	for enum in (Style, Color, Fill):
+		for flag in enum:
+			if combination & flag:
+				codes.append(str(flag))
+
+	return ";".join(codes)

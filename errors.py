@@ -29,14 +29,21 @@ THE SOFTWARE.
 class EcstasyError(Exception):
 	"""
 	Base class for exceptions in Ecstasy.
+
+	Attributes:
+		what (str): A descriptive string regarding the cause of the error.
 	"""
 
 	def __init__(self, what):
 		"""
 		Initializes the EcstasyError super-class.
+
+		Arguments:
+			what (str): A descriptive string regarding the cause of the error.
 		"""
 
 		self.what = what
+
 		super(EcstasyError, self).__init__(what)
 
 class FlagError(EcstasyError):
@@ -45,6 +52,13 @@ class FlagError(EcstasyError):
 	"""
 
 	def __init__(self, what):
+		"""
+		Initializes the EcstasyError super-class.
+
+		Arguments:
+			what (str): A descriptive string regarding the cause of the error.
+		"""
+
 		super(FlagError, self).__init__(what)
 
 class ParseError(EcstasyError):
@@ -52,14 +66,14 @@ class ParseError(EcstasyError):
 	Raised when the string passed to the beautify()
 	method is ill-formed and includes some syntactic
 	badness such as missing closing tags.
-
-	Attributes:
-		what (str): A descriptive string regarding the cause of the error.
 	"""
 
 	def __init__(self, what):
 		"""
 		Initializes the EcstasyError super-class.
+
+		Arguments:
+			what (str): A descriptive string regarding the cause of the error.
 		"""
 
 		super(ParseError, self).__init__(what)
@@ -68,17 +82,15 @@ class ArgumentError(EcstasyError):
 	"""
 	Raised when the positional argument for a phrase
 	is either out-of-range (i.e. there were fewer positional
-	arguments passed to beautify() than requested in the
-	argument) or if it is just total nonsense (i.e. not a
-	digit referring to a position and not the escape character).
-
-	Attributes:
-		what (str): A descriptive string regarding the cause of the error.
+	arguments passed to beautify() than requested in the argument).
 	"""
 
 	def __init__(self, what):
 		"""
 		Initializes the EcstasyError super-class.
+
+		Arguments:
+			what (str): A descriptive string regarding the cause of the error.
 		"""
 
 		super(ArgumentError, self).__init__(what)
@@ -89,14 +101,14 @@ class InternalError(EcstasyError):
 	within methods that are non-accessible via the
 	API but are used for internal features or processing.
 	Basically get mad at the project creator.
-
-	Attributes:
-		what (str): A descriptive string regarding the cause of the error.
 	"""
 
 	def __init__(self, what):
 		"""
 		Initializes the EcstasyError super-class.
+
+		Arguments:
+			what (str): A descriptive string regarding the cause of the error.
 		"""
 		super(InternalError, self).__init__(what)
 
