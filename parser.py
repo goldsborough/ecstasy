@@ -25,6 +25,8 @@ class Phrase:
 
 		self.nested = []
 
+		self.override = False
+
 	def __str__(self):
 		return self.string
 
@@ -38,7 +40,7 @@ class Parser:
 		self.tags = re.compile(r"[<>]")
 
 		# For positional arguments
-		self.argument = re.compile(r"^(-?\d,?)+$")
+		self.argument = re.compile(r"^(-?\d,?)+!?$")
 
 		# Used in self.stringify
 		self.counter = 0
@@ -152,13 +154,7 @@ class Parser:
 				else:
 					phrases.append(child)
 
-				before = string[:opening + 1]
-
-				# Shouldn't use child.closing because it refers to
-				# the last position inside 'escaped', which may be
-				# of different length than the string passed to parse
-				# (because it was possibly escaped)
-				string = before + escaped + string[opening + 1 + len(escaped):]
+				string = string[:opening + 1] + escaped
 
 				tag = self.tags.search(string, child.closing + 1)
 
@@ -168,12 +164,20 @@ class Parser:
 				# Whatever is between the opening tag and this closing tag
 				substring = string[: tag.start()]
 
-				# Positional argument <^(\d,?)+$>
+				# Positional argument <^(-?\d,?)+$>
 				if self.argument.match(substring):
+
+					# Override mode (overrides 'always' style)
+					if substring.endswith("!"):
+						root.override = True
+						substring = substring[:-1]
 
 					root.arguments = [int(i) for i in substring.split(",")]
 
-					tag = self.tags.search(string, tag.end())
+					string = string[tag.end():]
+
+					tag = self.tags.search(string)
+					continue
 
 				# Escape-character to escape the closing tag (/>)
 				elif substring.endswith("\\"):
@@ -181,41 +185,26 @@ class Parser:
 					# Get rid of the escape character either way
 					string = string[:tag.start() - 1] + string[tag.start():]
 
+					if not substring[:-1].endswith("\\"):
+						# tag.start() is now one index passed the closing tag
+						tag = self.tags.search(string, tag.start())
+						continue
+
 					# Double-escape means this is really supposed to be a
 					# closing tag and thus we can return the phrase.
-					if substring[:-1].endswith("\\"):
-
+					else:
 						# The closing position should be in the same scope
 						# as the scope of the opening position (scope in
 						# the sense of to which phrase the positions are
-						# relative to). -1 due to the escape character but
+						# relative to). -1 due to the escaped character but
 						# + 1 because index 0 is phrase.opening + 1
 						root.closing = root.opening + tag.start()
-
-						if root.arguments:
-							opening = substring.find(">") + 1
-						else:
-							opening = 0
-
-						root.string = string[opening : tag.start() - 1]
-
-						return string[:tag.start()], root
-
-					
-					# tag.start() is now one index passed the closing tag
-					tag = self.tags.search(string, tag.start())
-
+						root.string = string[: tag.start() - 1]
 				else:
 					root.closing = root.opening + 1 + tag.start()
-
-					if root.arguments:
-						root.string = substring[substring.find(">") + 1:]
-					else:
-						# The substring should not include the argument
-						root.string = substring
-
+					root.string = string[: tag.start()]
 					
-					return string[:tag.end()], root
+				return string, root
 
 			else:
 				# Replace escape character
@@ -265,6 +254,9 @@ class Parser:
 							 					   "(index {}) is out of"
 							 					   "range!".format(i, n))
 
+				if phrase.string in self.always and not phrase.override:
+					combination |= self.always[phrase.string]
+
 				phrase.style = self.codify(combination)
 
 			elif phrase.string in self.always:
@@ -283,7 +275,6 @@ class Parser:
 											   "!".format(requested,
 											   			  phrase.string,
 											   			  available))
-
 			if phrase.nested:
 				phrase.string = self.stringify(phrase.string,
 											   phrase.nested,
@@ -294,7 +285,6 @@ class Parser:
 			beauty += "\033[{}m{}\033[0;{}m".format(phrase.style,
 													phrase.string,
 													reset)
-
 			last_tag = phrase.closing + 1
 
 		if last_tag < len(string):
