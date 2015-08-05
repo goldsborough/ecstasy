@@ -1,9 +1,36 @@
 """
-Custom error classes and a method to retrieve the line
-and column of a character with a (multi-line) string.
+Custom error classes, a method to retrieve the line and column of a character
+in a (multi-line) string as well as a method to get a spoken-word representation
+of a number (e.g. 5 -> "5-th").
+
+The MIT License (MIT)
+
+Copyright (c) 2015 Peter Goldsborough
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
 """
 
 class EcstasyError(Exception):
+	"""
+	Base class for exceptions in Ecstasy.
+	"""
+
 	def __init__(self, what):
 		"""
 		Initializes the EcstasyError super-class.
@@ -12,9 +39,13 @@ class EcstasyError(Exception):
 		self.what = what
 		super(EcstasyError, self).__init__(what)
 
-class EcstasySyntaxError(EcstasyError):
+class FlagError(EcstasyError):
+	"""
+	Raised when flag combinations are invalid.
+	"""
+
 	def __init__(self, what):
-		super(EcstasySyntaxError, self).__init__(what)
+		super(FlagError, self).__init__(what)
 
 class ParseError(EcstasyError):
 	"""
@@ -75,8 +106,8 @@ def position(string, index):
 	(multi-line) string using the format line:column.
 
 	Arguments:
-		string: The string to which the index refers.
-		index: The index of the character in question.
+		string (str): The string to which the index refers.
+		index (int): The index of the character in question.
 
 	Returns:
 		A string with the format line:column where line refers to the
@@ -85,10 +116,11 @@ def position(string, index):
 		(relative to) that  line.
 	"""
 
+	if not string:
+		return None
+
 	if index < 0 or index >= len(string):
 		raise InternalError("Out-of-range index passed to errors.position!")
-
-	before = 0
 
 	lines = string.split("\n")
 
@@ -96,6 +128,8 @@ def position(string, index):
 	# line:index format wouldn't be so intuitive
 	if len(lines) == 1:
 		return str(index)
+
+	before = n = 0
 
 	for n, line in enumerate(lines):
 		# Note that we really want > and not
@@ -113,22 +147,33 @@ def position(string, index):
 	# index within the relevant line
 	return "{}:{}".format(n + 1, index - before)
 
-def number(n):
+def number(digit):
+	"""
+	Gets a spoken-word representation for a number.
 
-	n = str(n)
+	Arguments:
+		digit (int): An integer to convert into spoken-word.
 
-	if n.startswith("8") or n[:len(n) % 3] == "11":
+	Returns:
+		A spoken-word representation for a digit,
+		including an article ('a' or 'an') and a suffix,
+		e.g. 1 -> 'a 1st', 11 -> "an 11th".
+	"""
+
+	digit = str(digit)
+
+	if digit.startswith("8") or digit[:len(digit) % 3] == "11":
 		article = "an "
 	else:
 		article = "a "
 
-	if n.endswith("1") and n != "11":
-		suffix = "-st"
-	elif n.endswith("2") and n != "12":
-		suffix = "-nd"
-	elif n.endswith("3") and n != "13":
-		suffix = "-rd"
+	if digit.endswith("1") and digit != "11":
+		suffix = "st"
+	elif digit.endswith("2") and digit != "12":
+		suffix = "nd"
+	elif digit.endswith("3") and digit != "13":
+		suffix = "rd"
 	else:
-		suffix = "-th"
+		suffix = "th"
 
-	return article + n + suffix
+	return article + digit + suffix

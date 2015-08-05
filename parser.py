@@ -1,5 +1,31 @@
 # -*- coding: utf-8 -*-
 
+"""
+The heart of the ecstasy package, containing the main Parser class.
+
+The MIT License (MIT)
+
+Copyright (c) 2015 Peter Goldsborough
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without LIMITation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+"""
+
 import re
 import warnings
 import collections
@@ -7,7 +33,26 @@ import collections
 from . import flags
 from . import errors
 
-class Phrase:
+class Phrase(object):
+	"""
+	Class describing a single parsed phrase.
+
+	When a string is parsed in ecastasy, specially-marked regions of
+	text are converted taken note of and converted into Phrase objects,
+	which are later then used to replace the parsed strings (including any
+	tags or arguments) with the string itself as well as the formatting
+	codes specified by the arguments passed to Parser.beautify(), which
+	are then interpreted by the command line.
+
+	Attributes:
+		string (str): The text of the phrase (between opening and closing tags).
+		opening (int): The index of the opening tag.
+		closing (int): The index of the closing tag.
+		style (int): The formatting/style flag-combination of the phrase.
+		nested (list): A list of nested Phrase objects (children).
+		override (bool): The phrase's override specification.
+	"""
+
 	def __init__(self,
 				 opening=None,
 				 closing=None,
@@ -58,9 +103,9 @@ class Parser:
 			# or is an integer if it was (bitwise) OR'd
 			# with another flag (a "flag combination")
 			elif isinstance(argument, int):
-				if argument < 0 or argument >= flags.limit:
-					raise EcstasySyntaxError("Flag value '{}' is out of range "
-											 "!".format(argument))
+				if argument < 0 or argument >= flags.LIMIT:
+					raise errors.FlagError("Flag value '{}' is out of range "
+						"!".format(argument))
 				positional.append(argument)
 
 			# Dictionaries store 'always'-arguments
@@ -68,20 +113,20 @@ class Parser:
 				for key, value in argument.items():
 					# Simple 'always'-argument where one string
 					# is mapped to one formatting flag-combination
-					if type(key) == str:
+					if isinstance(key, str):
 						self.always[key] = value
 
 					# Complex 'always'-argument with a
 					# tuple containing strings, each with the same
 					# flag-combination (same value)
-					elif type(key) == tuple:
+					elif isinstance(key, tuple):
 						for i in key:
 							self.always[i] = value
 					else:
 						raise TypeError("Key '{}' in dictionary "
-										"argument passed at index {} "
-										"is neither a string nor a tuple "
-										"of strings!".format(key, n))
+										"argument passed is neither "
+										"a string nor a tuple "
+										"of strings!".format(key))
 
 			elif isinstance(argument, collections.Iterable):
 				for element in argument:
@@ -92,15 +137,15 @@ class Parser:
 										"(bitwise) OR'd flag-combination"
 										"!".format(element))
 
-					if element < 0 or element >= flags.limit:
-						raise EcstasySyntaxError("Flag value '{}' is out of range "
-												 "!".format(element))
+					if element < 0 or element >= flags.LIMIT:
+						raise errors.FlagError("Flag value '{}' is out of "
+										   	   "range !".format(element))
 					positional.append(element)
 			else:
-				raise TypeError("Argument '{}' is neither a flag, a (bitwise) "
-								"OR'd flag-combination, a dictionary or an "
-								"iterable of positional arguments"
-								"!".format(argument))
+				raise TypeError("Argument '{}' is neither a flag, a "
+								"(bitwise) OR'd flag-combination, a "
+								"dictionary nor an  iterable of positional "
+								"arguments!".format(argument))
 
 		return positional
 
@@ -114,10 +159,9 @@ class Parser:
 		return self.stringify(string, phrases)
 
 	def parse(self, string, root=None):
-
 		
 		# When parent is None (at the first call)
-		# we return a list of phrase, else this 
+		# we return a list of phrase, else this
 		# function will return a phrase object
 		# this is because there is no 'root' phrase
 		if not root:
@@ -203,7 +247,7 @@ class Parser:
 				else:
 					root.closing = root.opening + 1 + tag.start()
 					root.string = string[: tag.start()]
-					
+
 				return string, root
 
 			else:
@@ -227,19 +271,18 @@ class Parser:
 		# If this is not the first stack-depth the function should
 		# have returned upon finding a non-argument closing tag,
 		# i.e. we should never have gotten here.
-		word = re.search(r"([\w\s]+)(?![\d]*>[\w\s]+>)",
-					     string[root.opening + 1:])
+		word = re.search(r"([\w\s]+)(?![\d]*>[\w\s]+>)", string)
 
 		raise errors.ParseError("No closing tag found for "
 								"opening tag after expression '{}'"
-								"!".format(position, word.group()))
+								"!".format(word.group()))
 
 	def stringify(self, string, phrases, parent=None):
 
 		last_tag = 0
 
 		beauty = ""
-		
+
 		for phrase in phrases:
 
 			beauty += string[last_tag : phrase.opening]
@@ -254,6 +297,8 @@ class Parser:
 							 					   "(index {}) is out of"
 							 					   "range!".format(i, n))
 
+				# If override-mode is on (turned on by ! operator) the
+				# positional arguments should override the 'always'-style
 				if phrase.string in self.always and not phrase.override:
 					combination |= self.always[phrase.string]
 
@@ -283,7 +328,7 @@ class Parser:
 			reset = parent.style if parent else ""
 
 			beauty += "\033[{}m{}\033[0;{}m".format(phrase.style,
-													phrase.string,
+													phrase,
 													reset)
 			last_tag = phrase.closing + 1
 
