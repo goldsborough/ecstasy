@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 """
-The heart of the ecstasy package, containing the main Parser class.
-
 The MIT License (MIT)
 
 Copyright (c) 2015 Peter Goldsborough
@@ -57,7 +55,7 @@ class Phrase(object):
 				 opening=None,
 				 closing=None,
 				 string=None,
-				 style=None):
+				 style=0):
 
 		self.string = string
 
@@ -71,6 +69,8 @@ class Phrase(object):
 		self.nested = []
 
 		self.override = False
+
+		self.increment = False
 
 	def __str__(self):
 		return self.string
@@ -115,7 +115,9 @@ class Parser(object):
 
 		self.tags = re.compile(r"[<>]")
 
-		self.argument = re.compile(r"^(-?\d,?)+!?$")
+		self.argument = re.compile(r"^(-?\d,?)+!?$|"
+			 					   r"^!?(-?\d,?)+$|"
+			 					   r"^(!\+?|\+!?)$")
 
 		# Used in self.stringify to auto-increment
 		# positional argument positions
@@ -129,8 +131,9 @@ class Parser(object):
 		constructor (or the beautify() method on package-level).
 
 		Positional arguments can be passed either:
-		- Individually, where each flag-combination is one positional argument.
-		- Packaged inside a list, which is then expanded. There can be
+
+		* Individually, where each flag-combination is one positional argument.
+		* Packaged inside a list, which is then expanded. There can be
 		  multiple of such lists passed as arguments because it facilitates
 		  interaction with the ecastasy module (one may want to organize
 		  and update styles in certain ways depending on one's program), but
@@ -139,17 +142,18 @@ class Parser(object):
 		  had been passed in the way desribed above (individually).
 
 		'Always' arguments can be passed either:
-		- Individually, with keyword-argument syntax, i.e. <word>=<style>
-		- In a dictionary, which is expanded exactly like positional
+
+		* Individually, with keyword-argument syntax, i.e. <word>=<style>
+		* In a dictionary, which is expanded exactly like positional
 		  arguments passed in lists (i.e. each key/value pair in the
 		  dictionary is interpreted as if it had been passed individually,
 		  as key=value to the constructor/the external beautify() method).
 
 		Note:
-			self.always is set equal to the kwargs passed to the constructor
-			and then modified directly (when 'always'-arguments are found),
-			while the positional arguments are put into a list here and
-			returned (i.e. no interaction with self.positional).
+			self.always is set equal to the keyword arguments passed to the
+			constructor and then modified directly (when 'always'-arguments
+			are found), while the positional arguments are put into a list
+			here and returned (i.e. no interaction with self.positional).
 
 		Arguments:
 			args (list): The positional arguments passed to the constructor.
@@ -169,8 +173,8 @@ class Parser(object):
 
 		for argument in args:
 			# A flag is an instance of a subclass of
-			# flags.MetaEnum if it was passed alone
-			if isinstance(argument, flags.MetaEnum):
+			# flags.Flags if it was passed alone
+			if isinstance(argument, flags.Flags):
 				positional.append(argument)
 
 			# or is an integer if it was (bitwise) OR'd
@@ -384,15 +388,22 @@ class Parser(object):
 		# Whatever is between the opening tag and this closing tag
 		substring = string[:pos]
 
-		# Positional argument <^(-?\d,?)+$>
+		# Positional argument
 		if self.argument.match(substring):
 
-			# Override mode (overrides 'always' style)
-			if substring.endswith("!"):
-				root.override = True
-				substring = substring[:-1]
+			# Ignore whitespace
+			substring = substring.replace(" ", "")
 
-			root.arguments = [int(i) for i in substring.split(",")]
+			# Override mode (overrides 'always' style)
+			if "!" in substring:
+				root.override = True
+				substring = substring.replace("!", "")
+
+			if "+" in substring:
+				root.increment = True
+				substring = substring.replace("+", "")
+
+			root.arguments = [int(i) for i in substring.split(",") if i]
 
 			string = string[pos + 1:]
 
@@ -464,6 +475,9 @@ class Parser(object):
 
 			beauty += string[last_tag : phrase.opening]
 
+			if phrase.string in self.always and not phrase.override:
+				phrase.style = self.always[phrase.string]
+
 			if phrase.arguments:
 				combination = 0
 				for n, i in enumerate(phrase.arguments):
@@ -474,29 +488,30 @@ class Parser(object):
 							 					   "(index {}) is out of"
 							 					   "range!".format(i, n))
 
-				# If override-mode is on (turned on by ! operator) the
-				# positional arguments should override the 'always'-style
-				if phrase.string in self.always and not phrase.override:
-					combination |= self.always[phrase.string]
+				phrase.style |= combination
 
-				phrase.style = flags.codify(combination)
-
-			elif phrase.string in self.always:
-				phrase.style = flags.codify(self.always[phrase.string])
-
-			else:
+			elif (phrase.string not in self.always or
+				  phrase.increment or phrase.override):
 				try:
-					phrase.style = flags.codify(self.positional[self.counter])
-					self.counter += 1
+					combination = self.positional[self.counter]
+
+					if phrase.increment or not phrase.override:
+						self.counter += 1
 				except IndexError:
 					requested = errors.number(self.counter + 1)
-					available = len(self.positional)
+					number = len(self.positional)
+					available = "was" if number == 1 else "were"
 					raise errors.ArgumentError("Requested {} formatting "
 											   "argument for '{}' but only "
-											   "were supplied {} were supplied"
+											   "{} {} supplied"
 											   "!".format(requested,
 											   			  phrase.string,
+											   			  number,
 											   			  available))
+				phrase.style |= combination
+
+			phrase.style = flags.codify(phrase.style)
+
 			if phrase.nested:
 				phrase.string = self.stringify(phrase.string,
 											   phrase.nested,

@@ -1,6 +1,4 @@
 """
-Formatting and style flags for ecstasy.
-
 The MIT License (MIT)
 
 Copyright (c) 2015 Peter Goldsborough
@@ -35,7 +33,7 @@ class Hack(object):
 	set to the last enumerated enum-class and
 	start to the value at which the flag values
 	of the enum-class currently being evaluated
-	in the MetaEnum.__new__() method start (i.e. start
+	in the Flags.__new__() method start (i.e. start
 	is the flag value of the previous enum-class left-
 	shifted by one bit).
 	"""
@@ -43,7 +41,7 @@ class Hack(object):
 	last = None
 	start = 1
 
-class MetaEnum(Enum):
+class Flags(Enum):
 
 	"""
 	Base class for all flag enum-classes as well as the
@@ -56,7 +54,7 @@ class MetaEnum(Enum):
 	depends on its position inside the enum-class and also on the
 	position of the enum-class itself inside the order of enum
 	classes (as the Hack mechanism will continuously increment
-	flag values over multiple MetaEnum sub-enum-classes). This class
+	flag values over multiple Flags sub-enum-classes). This class
 	also defines various necessary operator and conversion overloads
 	that define the semantics/interaction of flags (such as that
 	you can bitwise-OR and bitwise-AND them).
@@ -82,7 +80,7 @@ class MetaEnum(Enum):
 
 		obj = object.__new__(cls)
 		obj._value_ = Hack.start << len(cls)
-		obj.code = code
+		obj.code = str(code)
 
 		LIMIT = obj._value_ << 1
 
@@ -104,14 +102,14 @@ class MetaEnum(Enum):
 		Returns:
 			A string version of the flag's style/formatting code.
 		"""
-		return str(self.code)
+		return self.code
 
 	def __or__(self, other):
 		"""
 		Bitwise-OR operator overload.
 
 		Arguments:
-			other (MetaEnum): A flag.
+			other (Flags): A flag.
 
 		Returns:
 			The combination of the bitwise-OR-ed flags (int).
@@ -138,7 +136,7 @@ class MetaEnum(Enum):
 		Bitwise-OR operator overload.
 
 		Arguments:
-			other (MetaEnum): A flag.
+			other (Flags): A flag.
 
 		Returns:
 			The combination of the bitwise-OR-ed flags (int).
@@ -161,7 +159,7 @@ class MetaEnum(Enum):
 		return other & self.value
 
 @unique
-class Style(MetaEnum):
+class Style(Flags):
 	"""
 	Special formatting flags pertaining to any style
 	alterations that do not involve color (but other
@@ -177,7 +175,7 @@ class Style(MetaEnum):
 	Hidden = (8)
 
 @unique
-class Color(MetaEnum):
+class Color(Flags):
 	"""
 	Text color flags (not fill-color).
 	"""
@@ -201,7 +199,7 @@ class Color(MetaEnum):
 	White = (97)
 
 @unique
-class Fill(MetaEnum):
+class Fill(Flags):
 	"""
 	Fill color flags (not text-color).
 	"""

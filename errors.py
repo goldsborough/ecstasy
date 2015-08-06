@@ -1,8 +1,4 @@
 """
-Custom error classes, a method to retrieve the line and column of a character
-in a (multi-line) string as well as a method to get a spoken-word representation
-of a number (e.g. 5 -> "5-th").
-
 The MIT License (MIT)
 
 Copyright (c) 2015 Peter Goldsborough
