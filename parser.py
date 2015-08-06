@@ -1,27 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-The MIT License (MIT)
-
-Copyright (c) 2015 Peter Goldsborough
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without LIMITation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
+The heart of the ecstasy package, containing the main *Parser* class.
 """
 
 import re
@@ -113,11 +93,11 @@ class Parser(object):
 
 		self.positional = self.get_flags(args)
 
-		self.tags = re.compile(r"[<>]")
+		self.meta = re.compile(r"[()<>]")
 
-		self.argument = re.compile(r"^(-?\d,?)+!?$|"
-			 					   r"^!?(-?\d,?)+$|"
-			 					   r"^(!\+?|\+!?)$")
+		self.arguments = re.compile(r"^(-?\d,?)+!?$|"
+			 		 			    r"^!?(-?\d,?)+$|"
+			 					    r"^(!\+?|\+!?)$")
 
 		# Used in self.stringify to auto-increment
 		# positional argument positions
@@ -270,15 +250,15 @@ class Parser(object):
 		if not root:
 			phrases = []
 
-		tag = self.tags.search(string)
+		meta = self.meta.search(string)
 
-		while tag:
+		while meta:
 
 			# Save some function calls
-			pos = tag.start()
+			pos = meta.start()
 
-			if tag.group() == "<":
-				string, child, tag = self.open_tag(string, pos)
+			if meta.group() == "<":
+				string, child, meta = self.open_phrase(string, pos)
 
 				if child:
 					if root:
@@ -286,45 +266,63 @@ class Parser(object):
 					else:
 						phrases.append(child)
 
-				# else it was escaped (+ new tag)
+				# else it was escaped (+ new meta)
+				continue
 
-			# tag is closing ('>')
 			elif root:
-				string, phrase, tag = self.closing_tag(string, root, pos)
 
-				if phrase:
-					return string, phrase
+				if meta.group() == "(":
+					meta = self.meta.search(string, pos + 1)
+					if meta.group() == ")":
+						string, root, meta = self.handle_arguments(string,
+																   root,
+																   pos,
+																   meta.start())
+						continue
 
-				# else it was escaped (+ new tag)
+				elif meta.group() == ">":
+					string, phrase, meta = self.close_phrase(string,
+															 root,
+															 pos)
+					if phrase:
+						return string, phrase
 
-			else:
-				# Replace escape character
-				if pos > 0 and string[pos - 1] == "\\":
-					string = string[:pos - 1] + string[pos:]
-				else:
-					# When the phrase is None at the start, there should not
-					# be a closing tag because none was ever opened. This is
-					# not actually an error, but we should warn about it.
-					position = errors.position(string, pos)
-					warnings.warn("Un-escaped '>' character at "
-							 	  "position {}".format(position),
-								  Warning)
+					# else was escaped (+ new meta)
+					continue
 
-				tag = self.tags.search(string, pos + 1)
+			string, meta = self.escape_meta(string, pos)
 
 		if not root:
 			return string, phrases
 
 		# If this is not the first stack-depth the function should
-		# have returned upon finding a non-argument closing tag,
+		# have returned upon finding a closing tag,
 		# i.e. we should never have gotten here.
 		word = re.search(r"([\w\s]+)(?![\d]*>[\w\s]+>)", string)
 
-		raise errors.ParseError("No closing tag found for "
-								"opening tag after expression '{}'"
-								"!".format(word.group()))
+		what = "No closing tag found for opening tag"
 
-	def open_tag(self, string, pos):
+		if word:
+			what += " after expression '{}'".format(word.group())
+
+		raise errors.ParseError(what + "!")
+
+	def escape_meta(self, string, pos):
+
+		# Replace escape character
+		if pos > 0 and string[pos - 1] == "\\":
+			string = string[:pos - 1] + string[pos:]
+		else:
+			warnings.warn("Un-escaped meta-character (ignoring it)!",
+						  Warning)
+			pos += 1
+
+		meta = self.meta.search(string, pos)
+
+		return string, meta
+
+
+	def open_phrase(self, string, pos):
 
 		"""
 		Helper function of self.parse() handling opening tags.
@@ -352,7 +350,7 @@ class Parser(object):
 			# If the escape character was not itself (double)
 			# escaped we can look for the next tag
 			if pos == 0 or string[pos - 1] != "\\":
-				tag = self.tags.search(string, pos + 1)
+				tag = self.meta.search(string, pos + 1)
 
 				return string, None, tag
 
@@ -362,11 +360,11 @@ class Parser(object):
 
 		string = string[:pos + 1] + escaped
 
-		tag = self.tags.search(string, child.closing + 1)
+		tag = self.meta.search(string, child.closing + 1)
 
 		return string, child, tag
 
-	def closing_tag(self, string, root, pos):
+	def close_phrase(self, string, root, pos):
 
 		"""
 		Helper function of self.parse() handling closing tags.
@@ -388,31 +386,8 @@ class Parser(object):
 		# Whatever is between the opening tag and this closing tag
 		substring = string[:pos]
 
-		# Positional argument
-		if self.argument.match(substring):
-
-			# Ignore whitespace
-			substring = substring.replace(" ", "")
-
-			# Override mode (overrides 'always' style)
-			if "!" in substring:
-				root.override = True
-				substring = substring.replace("!", "")
-
-			if "+" in substring:
-				root.increment = True
-				substring = substring.replace("+", "")
-
-			root.arguments = [int(i) for i in substring.split(",") if i]
-
-			string = string[pos + 1:]
-
-			tag = self.tags.search(string)
-
-			return string, None, tag
-
 		# Escape-character to escape the closing tag (/>)
-		elif substring.endswith("\\"):
+		if substring.endswith("\\"):
 
 			# Get rid of the escape character either way
 			string = string[:pos - 1] + string[pos:]
@@ -420,7 +395,7 @@ class Parser(object):
 			# Check if not double-escaped
 			if not substring[:-1].endswith("\\"):
 				# pos is now one index passed the closing tag
-				tag = self.tags.search(string, pos)
+				tag = self.meta.search(string, pos)
 
 				return string, None, tag
 
@@ -439,6 +414,46 @@ class Parser(object):
 			root.string = string[:pos]
 
 		return string, root, None
+
+
+	def handle_arguments(self, string, root, start, end):
+
+		# The actual argument string (ignore whitespace)
+		args = string[start + 1 : end].replace(" ", "")
+
+		# The argument sequence must be at the start and
+		# must match the allowed argument regular expression
+		if start > 0 or not self.arguments.match(args):
+
+			if start == 0:
+				raise errors.ParseError("Invalid argument sequence!")
+
+			# If escape_meta does indeed escape a character and removes
+			# a backward slash, the positions 'start' and 'end' are no
+			# longer valid. escape_meta does a search for the next meta
+			# character though, which is then the closing parantheses,
+			# so we can use its index value (in the now escaped string)
+			string, meta = self.escape_meta(string, start)
+			string, meta = self.escape_meta(string, meta.start())
+
+			return string, root, meta
+
+		if "!" in args:
+			root.override = True
+			args = args.replace("!", "")
+
+		if "+" in args:
+			root.increment = True
+			args = args.replace("+", "")
+
+		root.arguments = [int(i) for i in args.split(",") if i]
+
+		# Remove the argument string including parantheses
+		string = string[end + 1:]
+
+		meta = self.meta.search(string)
+
+		return string, root, meta
 
 	def stringify(self, string, phrases, parent=None):
 
@@ -480,13 +495,13 @@ class Parser(object):
 
 			if phrase.arguments:
 				combination = 0
-				for n, i in enumerate(phrase.arguments):
+				for i in phrase.arguments:
 					try:
 						combination |= self.positional[i]
 					except IndexError:
 						raise errors.ArgumentError("Positional argument '{}' "
-							 					   "(index {}) is out of"
-							 					   "range!".format(i, n))
+							 					   "is out of range"
+							 					   "!".format(i))
 
 				phrase.style |= combination
 
