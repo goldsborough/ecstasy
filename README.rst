@@ -24,9 +24,9 @@ To use ecstasy, you mark up a standard Python string using ecstasy's special syn
 	import ecstasy
 
 	# <...> is a normal phrase, its style is determined by its position
-	# <x>...> is a phrase with an argument, its style is the one at index 'x'
+	# <(x)...> is a phrase with an argument, its style is the one at index 'x'
 	# <<...> <...>> is a phrase with nested phrases, their styles cascade
-	text = "<Cats> are <0>just> <<small>, furry <elephants>>!"
+	text = "<Cats> are <(0)just> <<small>, furry <elephants>>!"
 
 	# Beautify text by specifying styles via flag combinations
 	text = ecstasy.beautify(text,
@@ -35,8 +35,6 @@ To use ecstasy, you mark up a standard Python string using ecstasy's special syn
 							ecstasy.Color.Magenta | ecstasy.Style.Underline,
 							small=ecstasy.Style.Invert | ecstasy.Color.White)
 
-	# The first style passed will map to the first phrase, and following styles
-	# map to following phrases (there is an internal, incrementing counter).
 	# Keyword arguments (small=...) cause all phrases matching the string of
 	# the key to have the style specified by the keyword argument's value.
 

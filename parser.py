@@ -260,11 +260,10 @@ class Parser(object):
 			if meta.group() == "<":
 				string, child, meta = self.open_phrase(string, pos)
 
-				if child:
-					if root:
-						root.nested.append(child)
-					else:
-						phrases.append(child)
+				if child and root:
+					root.nested.append(child)
+				elif child:
+					phrases.append(child)
 
 				# else it was escaped (+ new meta)
 				continue
@@ -309,11 +308,27 @@ class Parser(object):
 
 	def escape_meta(self, string, pos):
 
+		"""
+		Checks if a meta character is escaped or else warns about it.
+
+		If the meta character has an escape character ('\') preceding it,
+		the meta character is escaped. If it does not, a warning is emitted
+		that the user should escape it.
+
+		Arguments:
+			string (str): The relevant string in which the character was found.
+			pos (int): The index of the meta character within the string.
+
+		Returns:
+			The possibly escaped string and the next meta match.
+		"""
+
 		# Replace escape character
 		if pos > 0 and string[pos - 1] == "\\":
 			string = string[:pos - 1] + string[pos:]
 		else:
-			warnings.warn("Un-escaped meta-character (ignoring it)!",
+			warnings.warn("Un-escaped meta-character: '{}' (Escape"
+						  " it with a '\\')".format(string[pos]),
 						  Warning)
 			pos += 1
 
@@ -416,24 +431,47 @@ class Parser(object):
 		return string, root, None
 
 
-	def handle_arguments(self, string, root, start, end):
+	def handle_arguments(self, string, root, opening, closing):
+
+		"""
+		Handles phrase-arguments.
+
+		Sets the override and increment flags if found. Also makes
+		sure that the argument sequence is at the start of the phrase
+		and else warns about the unescaped meta characters. If the
+		arguments are indeed at the start but do not match the arguments
+		regular expression, an error is raised.
+
+		Arguments:
+			string (str): The string being parsed.
+			root (str): The current root phrase.
+			opening (int): The index of the opening paranthese.
+			closing (int): The index of the closing paranthese.
+
+		Returns:
+			The (possibly escaped) string, the root phrase (if no escaping,
+			then with arguments and flags) and the next meta match.
+
+		Raises:
+			errors.ParseError: If the arguments are invalid.
+		"""
 
 		# The actual argument string (ignore whitespace)
-		args = string[start + 1 : end].replace(" ", "")
+		args = string[opening + 1 : closing].replace(" ", "")
 
-		# The argument sequence must be at the start and
-		# must match the allowed argument regular expression
-		if start > 0 or not self.arguments.match(args):
+		# The argument sequence must be at the start of the phrase
+		# and must match the allowed argument regular expression
+		if opening > 0 or not self.arguments.match(args):
 
-			if start == 0:
+			if opening == 0:
 				raise errors.ParseError("Invalid argument sequence!")
 
 			# If escape_meta does indeed escape a character and removes
-			# a backward slash, the positions 'start' and 'end' are no
+			# a backward slash, the positions 'opening' and 'closing' are no
 			# longer valid. escape_meta does a search for the next meta
 			# character though, which is then the closing parantheses,
 			# so we can use its index value (in the now escaped string)
-			string, meta = self.escape_meta(string, start)
+			string, meta = self.escape_meta(string, opening)
 			string, meta = self.escape_meta(string, meta.start())
 
 			return string, root, meta
@@ -449,7 +487,7 @@ class Parser(object):
 		root.arguments = [int(i) for i in args.split(",") if i]
 
 		# Remove the argument string including parantheses
-		string = string[end + 1:]
+		string = string[closing + 1:]
 
 		meta = self.meta.search(string)
 

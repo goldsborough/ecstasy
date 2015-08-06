@@ -170,6 +170,16 @@ def number(digit):
 
 def warn(what, string, pos):
 
+	"""
+	Combines a warning with a call to errors.position().
+
+	Simple convenience function.
+
+	Arguments:
+		string (str): The string being parsed.
+		pos (int): The index of the character that caused trouble.
+	"""
+
 	pos = position(string, pos)
 
 	warnings.warn("{} at position {}!".format(what, pos), Warning)
