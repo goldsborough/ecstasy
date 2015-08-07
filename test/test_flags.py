@@ -1,7 +1,8 @@
 import unittest
 
-from .. import flags
-from .. import errors
+
+import ecstasy.flags as flags
+import ecstasy.errors as errors
 
 class TestCodify(unittest.TestCase):
 

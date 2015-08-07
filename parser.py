@@ -8,8 +8,8 @@ import re
 import warnings
 import collections
 
-from . import flags
-from . import errors
+import ecstasy.flags as flags
+import ecstasy.errors as errors
 
 class Phrase(object):
 	"""

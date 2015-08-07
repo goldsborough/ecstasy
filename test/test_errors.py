@@ -1,6 +1,6 @@
 import unittest
 
-from .. import errors
+import ecstasy.errors as errors
 
 class TestErrors(unittest.TestCase):
 

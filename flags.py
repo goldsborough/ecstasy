@@ -4,7 +4,7 @@ Formatting and style flags for ecstasy.
 
 from enum import Enum, unique
 
-from . import errors
+import ecstasy.errors as errors
 
 LIMIT = 0
 

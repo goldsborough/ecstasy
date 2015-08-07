@@ -1,9 +1,9 @@
 import unittest
 import collections
 
-from .. import parser
-from .. import errors
-from .. import flags
+import ecstasy.parser as parser
+import ecstasy.errors as errors
+import ecstasy.flags as flags
 
 class TestParserGetFlags(unittest.TestCase):
 
@@ -315,6 +315,126 @@ class TestParserParse(unittest.TestCase):
 		self.assertRaises(errors.ParseError,
 						  self.parser.parse,
 						  "<(?)asdf>")
+
+class TestParserStringify(unittest.TestCase):
+
+	def setUp(self):
+
+		self.positional = [
+			flags.Color.Red | flags.Fill.Blue,
+			flags.Style.Invert,
+			flags.Style.Blink
+		]
+
+		self.codes = [flags.codify(i) for i in self.positional]
+
+		self.always = {"always": flags.Color.White}
+
+		self.always_code = flags.codify(self.always["always"])
+
+		self.parser = parser.Parser(self.positional, self.always)
+
+	def test_stringifies_non_nested_simple_phrases_correctly(self):
+
+		result = self.parser.beautify("<abc> <def>")
+
+		expected = "\033[{}mabc\033[0;m ".format(self.codes[0])
+		expected += "\033[{}mdef\033[0;m".format(self.codes[1])
+
+		self.assertEqual(result, expected)
+
+
+	def test_stringifies_nested_simple_phrases_correctly(self):
+
+		result = self.parser.beautify("<<abc> <def>>")
+
+		# After a nested phrase, the parent style should be reset
+		expected = "\033[{0}m\033[{1}mabc\033[0;{0}m".format(self.codes[0],
+												 		     self.codes[1])
+
+		expected += " \033[{}mdef\033[0;{}m\033[0;m".format(self.codes[2],
+												 		    self.codes[0])
+
+		self.assertEqual(result, expected)
+
+	def test_stringifies_non_nested_argument_phrases_correctly(self):
+		
+		result = self.parser.beautify("<(0)abc> <(-1)def>")
+
+		expected = "\033[{}mabc\033[0;m ".format(self.codes[0])
+		expected += "\033[{}mdef\033[0;m".format(self.codes[-1])
+
+		self.assertEqual(result, expected)
+
+	def test_stringifies_nested_argument_phrases_correctly(self):
+
+		result = self.parser.beautify("<(1)<(0)abc> <(-2)def>>")
+
+		# After a nested phrase, the parent style should be reset
+		expected = "\033[{0}m\033[{1}mabc\033[0;{0}m".format(self.codes[1],
+												 		     self.codes[0])
+
+		expected += " \033[{}mdef\033[0;{}m\033[0;m".format(self.codes[-2],
+												 		    self.codes[1])
+
+		self.assertEqual(result, expected)
+
+	def test_stringifies_always_correctly(self):
+
+		result = self.parser.beautify("<always>")
+
+		expected = "\033[{}malways\033[0;m".format(self.always_code)
+
+		self.assertEqual(result, expected)
+
+	def test_stringify_combines_always_with_argument_phrase_correctly(self):
+
+		result = self.parser.beautify("<(0)always>")
+
+		combined = flags.codify(self.always["always"] | self.positional[0])
+
+		expected = "\033[{}malways\033[0;m".format(combined)
+
+		self.assertEqual(result, expected)
+
+
+	def test_stringify_overrides_argument_phrase_style_correctly(self):
+
+		result = self.parser.beautify("<(0!)always>")
+
+		expected = "\033[{}malways\033[0;m".format(self.codes[0])
+
+		self.assertEqual(result, expected)
+
+	def test_stringify_overrides_simple_phrase_style_correctly(self):
+
+		# ! overrides the 'always'-style but does not increment the counter
+		result = self.parser.beautify("<(!)always> <next>")
+
+		expected = "\033[{0}malways\033[0;m ".format(self.codes[0])
+		expected += "\033[{0}mnext\033[0;m".format(self.codes[0])
+
+		self.assertEqual(result, expected)
+
+	def test_stringify_increments_simple_phrase_correctly(self):
+
+		result = self.parser.beautify("<(+)always> <next>")
+
+		combined = flags.codify(self.always["always"] | self.positional[0])
+
+		expected = "\033[{0}malways\033[0;m ".format(combined)
+		expected += "\033[{0}mnext\033[0;m".format(self.codes[1])
+
+		self.assertEqual(result, expected)
+
+	def test_stringify_increments_and_overrides_simple_phrase_correctly(self):
+
+		result = self.parser.beautify("<(!+)always> <next>")
+
+		expected = "\033[{0}malways\033[0;m ".format(self.codes[0])
+		expected += "\033[{0}mnext\033[0;m".format(self.codes[1])
+
+		self.assertEqual(result, expected)
 
 def main():
 	unittest.main()
