@@ -30,10 +30,10 @@ To use ecstasy, you mark up a standard Python string using ecstasy's special syn
 
 	# Beautify text by specifying styles via flag combinations
 	text = ecstasy.beautify(text,
-							ecstasy.Style.Blink | ecstasy.Color.Red,
-							ecstasy.Style.Bold | ecstasy.Fill.Blue,
-							ecstasy.Color.Magenta | ecstasy.Style.Underline,
-							small=ecstasy.Style.Invert | ecstasy.Color.White)
+				ecstasy.Style.Blink   | ecstasy.Color.Red,
+				ecstasy.Style.Bold    | ecstasy.Fill.Blue,
+				ecstasy.Color.Magenta | ecstasy.Style.Underline,
+				small=ecstasy.Style.Invert | ecstasy.Color.White)
 
 	# Keyword arguments (small=...) cause all phrases matching the string of
 	# the key to have the style specified by the keyword argument's value.
