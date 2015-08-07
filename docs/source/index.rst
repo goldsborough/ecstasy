@@ -101,7 +101,11 @@ Here, "<Hello>" will first be parsed as a simple phrase. The internal counter wi
 
 .. note::
 
-    If the positional argument is out of range (i.e. if the index is greater than or equals the size of the pool), an exception of type ecstasy.errors.ArgumentError is thrown. 
+    Negative indices are allowed and follow the same meaning as in regular Python (as in -1 being the last element).
+
+.. note::
+
+    If the positional argument is out of range (i.e. if the index is greater than or equals the size of the pool), an exception of type ecstasy.errors.ArgumentError is thrown.
 
 Multiple Positional Arguments
 *****************************

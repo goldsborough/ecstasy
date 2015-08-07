@@ -59,7 +59,7 @@ class ParseError(EcstasyError):
 class ArgumentError(EcstasyError):
 	"""
 	Raised when the positional argument for a phrase
-	is either out-of-range (i.e. there were fewer positional
+	is out-of-range (i.e. there were fewer positional
 	arguments passed to beautify() than requested in the argument).
 	"""
 
@@ -122,20 +122,20 @@ def position(string, index):
 	before = n = 0
 
 	for n, line in enumerate(lines):
+		future = before + len(line) + 1 # \n
 		# Note that we really want > and not
 		# >= because the length is 1-indexed
 		# while the index is not, i.e. the
 		# value of 'before' already includes the
 		# first character of the next line when
 		# speaking of its 0-indexed index
-		if before + len(line) > index:
+		if future > index:
 			break
-		before += len(line)
+		before = future
 
-	# n + 1 to have it 1-indexed
 	# index - before to have only the
 	# index within the relevant line
-	return "{}:{}".format(n + 1, index - before)
+	return "{}:{}".format(n, index - before)
 
 def number(digit):
 	"""
@@ -147,26 +147,34 @@ def number(digit):
 	Returns:
 		A spoken-word representation for a digit,
 		including an article ('a' or 'an') and a suffix,
-		e.g. 1 -> 'a 1st', 11 -> "an 11th".
+		e.g. 1 -> 'a 1st', 11 -> "an 11th". Adittionally
+		delimits characters in pairs of three for values > 999.
 	"""
 
-	digit = str(digit)
+	spoken = str(digit)
 
-	if digit.startswith("8") or digit[:len(digit) % 3] == "11":
+	if spoken.startswith("8") or spoken[:len(spoken) % 3] == "11":
 		article = "an "
 	else:
 		article = "a "
 
-	if digit.endswith("1") and digit != "11":
+	if spoken.endswith("1") and spoken != "11":
 		suffix = "st"
-	elif digit.endswith("2") and digit != "12":
+	elif spoken.endswith("2") and spoken != "12":
 		suffix = "nd"
-	elif digit.endswith("3") and digit != "13":
+	elif spoken.endswith("3") and spoken != "13":
 		suffix = "rd"
 	else:
 		suffix = "th"
 
-	return article + digit + suffix
+	if digit > 999:
+		prefix = len(spoken) % 3
+		separated = spoken[:prefix]
+		for n in range(prefix, len(spoken), 3):
+			separated += "," + spoken[n : n + 3]
+		spoken = separated
+
+	return article + spoken + suffix
 
 def warn(what, string, pos):
 

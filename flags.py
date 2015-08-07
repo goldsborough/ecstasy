@@ -4,6 +4,8 @@ Formatting and style flags for ecstasy.
 
 from enum import Enum, unique
 
+from . import errors
+
 LIMIT = 0
 
 class Hack(object):
@@ -80,7 +82,7 @@ class Flags(Enum):
 		Turns the flag into its style-code.
 
 		Returns:
-			A string version of the flag's style/formatting code.
+			The flag's style/formatting code.
 		"""
 		return self.code
 
@@ -212,7 +214,14 @@ def codify(combination):
 						   or an OR'd flag-combination.
 	Returns:
 		A semi-colon-delimited string of appropriate escape sequences.
+
+	Raises:
+		errors.FlagError if the combination is out-of-range.
 	"""
+
+	if (isinstance(combination, int) and
+	   	(combination < 0 or combination >= LIMIT)):
+		raise errors.FlagError("Out-of-range flag-combination!")
 
 	codes = []
 

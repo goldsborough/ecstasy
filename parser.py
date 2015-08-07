@@ -34,8 +34,12 @@ class Phrase(object):
 	def __init__(self,
 				 opening=None,
 				 closing=None,
-				 string=None,
-				 style=0):
+				 string="",
+				 style=0,
+				 args=None,
+				 nested=None,
+				 override=False,
+				 increment=False):
 
 		self.string = string
 
@@ -44,16 +48,34 @@ class Phrase(object):
 
 		self.style = style
 
-		self.arguments = []
+		self.arguments = args if args else []
 
-		self.nested = []
+		self.nested = nested if nested else []
 
-		self.override = False
+		self.override = override
 
-		self.increment = False
+		self.increment = increment
 
 	def __str__(self):
 		return self.string
+
+	def __repr__(self):
+		return ("<'{}': start: {}, end: {}, args: {}, "
+			   "nested: {}, override: {}, increment: {}"
+			   ">".format(self.string, self.opening,
+			   			  self.closing, self.arguments,
+			   			  self.nested, self.override,
+			   			  self.increment))
+
+	def __eq__(self, other):
+		return (self.string == other.string			and
+				self.opening == other.opening 		and
+				self.closing == other.closing 		and
+				self.style == other.style 			and
+				self.arguments == other.arguments 	and
+				self.nested == other.nested			and
+				self.override == other.override		and
+				self.increment == other.increment)
 
 class Parser(object):
 	"""
@@ -91,7 +113,7 @@ class Parser(object):
 
 		self.always = kwargs
 
-		self.positional = self.get_flags(args)
+		self.positional = self.get_flags(args) if args else []
 
 		self.meta = re.compile(r"[()<>]")
 
@@ -208,13 +230,24 @@ class Parser(object):
 
 		Returns:
 			The parsed, stringified and ultimately beautified string.
+
+		Raises:
+			errors.ArgumentError if phrases were found, but not a single style
+			(flag combination) was supplied.
 		"""
+
+		if not string:
+			return string
 
 		# string may differ because of escaped characters
 		string, phrases = self.parse(string)
 
 		if not phrases:
 			return string
+
+		if not self.positional:
+			raise errors.ArgumentError("Found phrases, but no styles "
+									   "were supplied!")
 
 		return self.stringify(string, phrases)
 
@@ -260,10 +293,13 @@ class Parser(object):
 			if meta.group() == "<":
 				string, child, meta = self.open_phrase(string, pos)
 
-				if child and root:
-					root.nested.append(child)
-				elif child:
-					phrases.append(child)
+				if child:
+					if root:
+						root.nested.append(child)
+					else:
+						if isinstance(child, str):
+							raise RuntimeError
+						phrases.append(child)
 
 				# else it was escaped (+ new meta)
 				continue
