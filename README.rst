@@ -9,6 +9,8 @@ Ecstasy is here to make your command-line tool beautiful and fancy.
 .. image:: https://github.com/goldsborough/ecstasy/blob/master/docs/img/without.png
 	:alt: Y U NO WORK?!
 
+\
+
 **Your command-line tool's output with (on?) ecstasy:**
 
 .. image:: https://github.com/goldsborough/ecstasy/blob/master/docs/img/with.gif
