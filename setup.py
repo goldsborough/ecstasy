@@ -25,7 +25,7 @@ setup(
 
 	version=version,
 
-	description='A command-line beautification tool.',
+	description='A command-line-tool beautifier.',
 	long_description=long_description,
 
 	url='https://github.com/goldsborough/ecstasy',
