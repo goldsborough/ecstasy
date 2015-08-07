@@ -373,9 +373,8 @@ The second big advantage dictionaries have over individual keyword-arguments is 
     text = ecstasy.beautify(text, styles)
 
 
-
-Source Code Documentation
-=========================
+Source Code
+===========
 
 .. toctree::
     :maxdepth: 2
