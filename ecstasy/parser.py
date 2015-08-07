@@ -11,6 +11,19 @@ import collections
 import ecstasy.flags as flags
 import ecstasy.errors as errors
 
+def beautify(string, *args, **kwargs):
+	"""
+		Convenient interface to the ecstasy package.
+
+		Arguments:
+			string (str): The string to beautify with ecstasy.
+			args (list): The positional arguments.
+			kwargs (dict): The keyword ('always') arguments.
+	"""
+
+	parser = Parser(args, kwargs)
+	return parser.beautify(string)
+
 class Phrase(object):
 	"""
 	Class describing a single parsed phrase.
