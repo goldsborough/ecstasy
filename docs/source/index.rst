@@ -421,6 +421,11 @@ Here is a complete and working example demonstrating the full power of *ecstasy*
 
         main()
 
+**Output**:
+
+.. image:: https://github.com/goldsborough/ecstasy/docs/img/jabberwock.gif
+    :alt: I <3 cats
+
 Source Code
 ===========
 
