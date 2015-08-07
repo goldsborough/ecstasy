@@ -2,7 +2,7 @@
 Ecstasy
 *******
 
-Ecstasy is a Python package and markup language that makes your command-line tool so much more beautiful and pretty.
+Ecstasy is here to make your command-line tool beautiful and fancy.
 
 **Your command-line tool's output without ecstasy:**
 
@@ -11,7 +11,7 @@ Ecstasy is a Python package and markup language that makes your command-line too
 
 **Your command-line tool's output with (on?) ecstasy:**
 
-.. image:: https://github.com/goldsborough/ecstasy/blob/master/docs/img/with.png
+.. image:: https://github.com/goldsborough/ecstasy/blob/master/docs/img/with.gif
 	:alt: Y U NO WORK?!
 
 Usage
@@ -30,10 +30,10 @@ To use ecstasy, you mark up a standard Python string using ecstasy's special syn
 
 	# Beautify text by specifying styles via flag combinations
 	text = ecstasy.beautify(text,
-		ecstasy.Style.Blink | ecstasy.Color.Red,
-		ecstasy.Style.Bold | ecstasy.Fill.Blue,
-		ecstasy.Color.Magenta | ecstasy.Style.Underline,
-		small=ecstasy.Style.Invert | ecstasy.Color.White)
+							ecstasy.Style.Blink | ecstasy.Color.Red,
+							ecstasy.Style.Bold | ecstasy.Fill.Blue,
+							ecstasy.Color.Magenta | ecstasy.Style.Underline,
+							small=ecstasy.Style.Invert | ecstasy.Color.White)
 
 	# Keyword arguments (small=...) cause all phrases matching the string of
 	# the key to have the style specified by the keyword argument's value.
@@ -48,7 +48,9 @@ Running this in a script from a command-line outputs:
 Installation
 ============
 
-Now that you're convinced, you can install ecstasy with pip:::
+Now that you're convinced, you can install ecstasy with pip:
+
+::
 
 	pip install ecstasy
 
