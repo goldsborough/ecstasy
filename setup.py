@@ -1,31 +1,29 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 """
 setup.py script for setuptools.
 """
 
-import os
 import re
 
 from codecs import open
 
-try:
-	from setuptools import setup
-except ImportError:
-	from distutils.core import setup
+from setuptools import setup, find_packages
 
 version = ''
-with open('requests/__init__.py', 'r') as f:
-	version = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]',
-						f.read(), re.MULTILINE).group(1)
 
-with open('README.rst', encoding='utf-8') as f:
-	long_description = f.read()
+with open('ecstasy/__init__.py', 'r') as init:
+	version = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]',
+						init.read(), re.MULTILINE).group(1)
+
+with open('README.rst', encoding='utf-8') as readme:
+	long_description = readme.read()
 
 setup(
 	name='ecstasy',
 
-	version='1.0',
+	version=version,
 
 	description='A command-line beautification tool.',
 	long_description=long_description,
@@ -45,6 +43,7 @@ setup(
 
 		'License :: OSI Approved :: MIT License',
 
+		'Programming Language :: Python',
 		'Programming Language :: Python :: 2',
 		'Programming Language :: Python :: 2.6',
 		'Programming Language :: Python :: 2.7',
@@ -54,7 +53,9 @@ setup(
 		'Programming Language :: Python :: 3.4',
 	],
 
-	keywords='command-line tools formatting styling',
+	keywords='command-line tools formatting styling beautifier markup',
 
 	packages=find_packages(exclude=['contrib', 'docs', 'tests*']),
+
+	install_requires=['enum34']
 )

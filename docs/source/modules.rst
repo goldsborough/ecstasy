@@ -1,11 +1,3 @@
-ecstasy
----------------
-
-.. automodule:: ecstasy
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 ecstasy.parser
 --------------
 

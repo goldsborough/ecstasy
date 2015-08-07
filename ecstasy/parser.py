@@ -258,7 +258,7 @@ class Parser(object):
 		if not phrases:
 			return string
 
-		if not self.positional:
+		if not self.positional and not self.always:
 			raise errors.ArgumentError("Found phrases, but no styles "
 									   "were supplied!")
 
