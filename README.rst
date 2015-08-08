@@ -76,4 +76,4 @@ Ecstasy is released under the MIT license (see the LICENSE file).
 Authors
 =======
 
-Peter Goldsborough + cat :heart:
+Peter Goldsborough & `cat <https://goo.gl/IpUmJn>`_ :heart:
