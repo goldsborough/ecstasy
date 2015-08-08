@@ -55,7 +55,5 @@ setup(
 
 	keywords='command-line tools formatting styling beautifier markup',
 
-	packages=find_packages(exclude=['contrib', 'docs', 'tests*']),
-
-	install_requires=['enum34', 'unittest2']
+	packages=find_packages(exclude=['contrib', 'docs', 'tests*'])
 )

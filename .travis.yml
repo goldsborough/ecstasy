@@ -12,3 +12,5 @@ script: unit2 -v
 notifications:
   email: 
     - petergoldsborough@hotmail.com
+after_success:
+  - coveralls

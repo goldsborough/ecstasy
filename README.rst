@@ -12,7 +12,7 @@
 	</h1>
 	<br>
 	<a href='https://travis-ci.org/goldsborough/ecstasy'>
-		<img src='https://travis-ci.org/goldsborough/ecstasy.svg?branch=master?branch=master'/>
+		<img src='https://travis-ci.org/goldsborough/ecstasy.svg?branch=master'/>
 	</a>
 	<a href='https://codeclimate.com/github/goldsborough/ecstasy'>
 		<img src='https://codeclimate.com/github/goldsborough/ecstasy/badges/gpa.svg'/>
@@ -24,7 +24,10 @@
 		<img src='https://badge.fury.io/py/ecstasy.svg'/>
 	</a>
 	<a href='https://coveralls.io/github/goldsborough/ecstasy?branch=master'>
-		<img src='https://coveralls.io/repos/goldsborough/ecstasy/badge.svg?branch=master&service=github?branch=master&service=github'/>
+		<img src='https://coveralls.io/repos/goldsborough/ecstasy/badge.svg?branch=master&service=github'/>
+	</a>
+	<a href="https://landscape.io/github/goldsborough/ecstasy/master">
+	  <img alt="Code Health" src="https://landscape.io/github/goldsborough/ecstasy/master/landscape.svg?style=flat"/>
 	</a>
 	<a href='http://img.shields.io/gratipay/goldsborough'>
 		<img src='http://img.shields.io/gratipay/goldsborough.svg'/>
@@ -85,7 +88,7 @@ Now that you're convinced, you can install ecstasy with pip:
 
 ::
 
-	pip install ecstasy
+	$ pip install ecstasy
 
 ... and get crackin'.
 
@@ -100,7 +103,7 @@ Compatibility
 Python Versions
 ---------------
 
-Built with Python 3.4 and Python 2.7. Additionally successfully backported to and tested with Python 2.6, 3.2 and also 3.3.
+Built with Python 3.4 and Python 2.7. Additionally successfully backported to and tested with Python 2.6, 3.2 and also 3.3. See what `Travis <https://travis-ci.org/goldsborough/ecstasy>`_ has to say about it.
 
 Terminal Support
 ----------------

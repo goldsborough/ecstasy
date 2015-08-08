@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from .parser import beautify
-from .flags import Color, Fill, Style
+from .parser import beautify			# noqa
+from .flags import Color, Fill, Style	# noqa
 
 __title__ = 'ecstasy'
 __version__ = '0.1'

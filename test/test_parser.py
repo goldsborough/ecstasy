@@ -357,10 +357,10 @@ class TestParserStringify(unittest2.TestCase):
 
 		# After a nested phrase, the parent style should be reset
 		expected = "\033[{0}m\033[{1}mabc\033[0;{0}m".format(self.codes[0],
-												 		     self.codes[1])
+															 self.codes[1])
 
 		expected += " \033[{0}mdef\033[0;{1}m\033[0;m".format(self.codes[2],
-												 		    self.codes[0])
+															self.codes[0])
 
 		self.assertEqual(result, expected)
 
@@ -379,10 +379,10 @@ class TestParserStringify(unittest2.TestCase):
 
 		# After a nested phrase, the parent style should be reset
 		expected = "\033[{0}m\033[{1}mabc\033[0;{0}m".format(self.codes[1],
-												 		     self.codes[0])
+															 self.codes[0])
 
 		expected += " \033[{0}mdef\033[0;{0}m\033[0;m".format(self.codes[-2],
-												 		    self.codes[1])
+															self.codes[1])
 
 		self.assertEqual(result, expected)
 

@@ -61,10 +61,10 @@ class Flags(Enum):
 			Hack.last = cls
 
 		obj = object.__new__(cls)
-		obj._value_ = Hack.start << len(cls)
+		obj._value_ = Hack.start << len(cls) # noqa
 		obj.code = str(code)
 
-		LIMIT = obj._value_ << 1
+		LIMIT = obj._value_ << 1 # noqa
 
 		return obj
 
@@ -220,7 +220,7 @@ def codify(combination):
 	"""
 
 	if (isinstance(combination, int) and
-	   	(combination < 0 or combination >= LIMIT)):
+		(combination < 0 or combination >= LIMIT)):
 		raise errors.FlagError("Out-of-range flag-combination!")
 
 	codes = []
