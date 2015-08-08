@@ -11,11 +11,11 @@ Ecstasy
 .. image:: https://img.shields.io/github/license/mashape/apistatus.svg
 	:target: http://goldsborough.mit-license.org
 
-.. image:: https://img.shields.io/pypi/v/nine.svg
-	:target: https://pypi.python.org/pypi/ecstasy
+.. image:: https://pypip.in/d/ecstasy/badge.png
+    :target: https://crate.io/packages/ecstasy/
 
-.. image:: https://img.shields.io/pypi/dm/Django.svg
-	:target: https://pypi.python.org/pypi/ecstasy
+.. image:: https://badge.fury.io/py/ecstasy.svg
+    :target: http://badge.fury.io/py/ecstasy
 
 .. image:: http://img.shields.io/gratipay/goldsborough.svg
 	:target: http://img.shields.io/gratipay/goldsborough
