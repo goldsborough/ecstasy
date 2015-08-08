@@ -39,7 +39,7 @@ To use ecstasy, you mark up a standard Python string using ecstasy's special syn
 
 Running this in a script from a command-line outputs:
 
-.. image:: https://github.com/goldsborough/ecstasy/docs/img/usage.gif
+.. image:: https://github.com/goldsborough/ecstasy/blob/master/docs/img/usage.gif
     :alt: Badassery
 
 Phrases
@@ -271,7 +271,7 @@ Available Flags
 
 Here the output, ordered as above:
 
-.. image:: https://github.com/petergoldsborough/ecstasy/docs/img/color.png
+.. image:: https://github.com/goldsborough/ecstasy/blob/master/docs/img/color.png
     :alt: illuminati was here
 
 * Fill Color (ecstasy.Fill)
@@ -296,7 +296,7 @@ Here the output, ordered as above:
 
 Here the output, ordered as above:
 
-.. image:: https://github.com/petergoldsborough/ecstasy/docs/img/fill.png
+.. image:: https://github.com/goldsborough/ecstasy/blob/master/docs/img/fill.png
     :alt: illuminati was here
 
 Passing Flags
@@ -424,7 +424,7 @@ Here is a complete and working example demonstrating the full power of *ecstasy*
 
 **Output**:
 
-.. image:: https://github.com/goldsborough/ecstasy/docs/img/jabberwock.gif
+.. image:: https://github.com/goldsborough/ecstasy/blob/master/docs/img/jabberwock.gif
     :alt: I <3 cats
 
 Terminal Support
