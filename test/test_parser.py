@@ -293,19 +293,17 @@ class TestParserParse(unittest2.TestCase):
 
 	def test_warns_about_unescaped_meta_characters(self):
 
-		if sys.version_info[0] == 3 and sys.version_info[1] >= 2:
+		self.assertWarns(Warning,
+						 self.parser.parse,
+						 " > abc")
 
-			self.assertWarns(Warning,
-							 self.parser.parse,
-							 " > abc")
+		self.assertWarns(Warning,
+						 self.parser.parse,
+						 " <( abc>")
 
-			self.assertWarns(Warning,
-							 self.parser.parse,
-							 " <( abc>")
-
-			self.assertWarns(Warning,
-							 self.parser.parse,
-							 " <abc> )")
+		self.assertWarns(Warning,
+						 self.parser.parse,
+						 " <abc> )")
 
 	def test_raises_for_invalid_args(self):
 

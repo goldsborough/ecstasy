@@ -2,13 +2,17 @@
 Ecstasy
 *******
 
-.. image:: http://img.shields.io/gratipay/goldsborough.svg
-	:target: http://img.shields.io/gratipay/goldsborough
-	:alt: :(
+.. image:: https://travis-ci.org/goldsborough/ecstasy.svg?branch=master
+    :target: https://travis-ci.org/goldsborough/ecstasy
+    :alt: Build Status
 
 .. image:: https://codeclimate.com/github/goldsborough/ecstasy/badges/gpa.svg
    :target: https://codeclimate.com/github/goldsborough/ecstasy
    :alt: Code Climate
+
+.. image:: http://img.shields.io/gratipay/goldsborough.svg
+	:target: http://img.shields.io/gratipay/goldsborough
+	:alt: <3
 
 Ecstasy is here to make your command-line tool beautiful and fancy.
 
