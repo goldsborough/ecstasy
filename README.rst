@@ -2,9 +2,30 @@
 Ecstasy 
 *******
 
+.. image:: https://travis-ci.org/goldsborough/ecstasy.svg?branch=master
+	:target: https://travis-ci.org/goldsborough/ecstasy
+
+.. image:: https://codeclimate.com/github/goldsborough/ecstasy/badges/gpa.svg
+	:target: https://codeclimate.com/github/goldsborough/ecstasy
+
+.. image:: https://img.shields.io/github/license/mashape/apistatus.svg
+	:target: http://goldsborough.mit-license.org
+
+.. image:: https://badge.fury.io/py/ecstasy.svg
+	:target: http://badge.fury.io/py/ecstasy
+
+.. image:: https://coveralls.io/repos/goldsborough/ecstasy/badge.svg?branch=master&service=github
+	:target: https://coveralls.io/github/goldsborough/ecstasy?branch=master
+
+.. image:: https://landscape.io/github/goldsborough/ecstasy/master/landscape.svg?style=flat
+	:target: https://landscape.io/github/goldsborough/ecstasy/master
+
+.. image:: http://img.shields.io/gratipay/goldsborough.svg
+	:target: http://img.shields.io/gratipay/goldsborough
+
 \
 
-Ecstasy is here to make yocur command-line tool beautiful and fancy.
+Ecstasy is here to make your command-line tool beautiful and fancy.
 
 **Your command-line tool's output without ecstasy:**
 
