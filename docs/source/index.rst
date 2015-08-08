@@ -2,15 +2,20 @@
 Ecstasy
 =======
 
-\
-
 * `Introduction`_
+
 * `Basic Usage`_
+
 * `Phrases`_
+
 * `Arguments`_
+
 * `Flags`_
+
 * `Example`_
+
 * `Terminal Support`_
+
 * `Source Code`_
 
 Introduction
@@ -66,14 +71,14 @@ The above paragraph introduces two of the three categories of *phrases* known to
 
 \
 
-* **Argument phrases**, following the schema <(x[,y,z,...][![,+]])>...>. An argument phrase differs from a simple phrase in that it is additionally supplied with one or more arguments in parantheses. The topic of arguments is discussed in further detail below, but in the most obvious and simple case there is only one single argument -- an index --X, referred to as a *positional argument*, which tells ecstasy to not pick the next available style and increment the counter as it would for a simple phrase, but rather simply pick the style at the index specified by the positional argument, without incrementing. Now, given the string "<a> <(0)b>" and *only one style*, "<a>" will be parsed as a simple phrase and consume the next available style (the only one). However, when "<(0)b>" is parsed, the style assigned to it will be that at index 0, i.e. the same one as for "<a>".
+* **Argument phrases**, following the schema <(x[,y,z,...][![,+]])>...>. An argument phrase differs from a simple phrase in that it is additionally supplied with one or more arguments in parantheses. The topic of arguments is discussed in further detail below, but in the most obvious and simple case there is only one single argument -- an index --, referred to as a *positional argument*, which tells ecstasy to not pick the next available style and increment the counter as it would for a simple phrase, but rather simply pick the style at the index specified by the positional argument, without incrementing. Now, given the string "<a> <(0)b>" and *only one style*, "<a>" will be parsed as a simple phrase and consume the next available style (the only one). However, when "<(0)b>" is parsed, the style assigned to it will be that at index 0, i.e. the same one as for "<a>".
 
 There is one more important phrase-category which can be seen in the basic-usage example given at the top of this document:
 
 * **Always phrases**, following the full schema <[x[,y,z,...][![,+]]>]...>. An *always* phrase is essentially a keyword-argument consisting of a key -- some specific string -- and an associated value -- a certain style (flag-combination) that is passed to ecstasy.beautify() via the standard Python keyword argument syntax, i.e. key=value or, more specifically here, string=style. Whenever ecstasy encounters a phrase (<...>) in the string it is parsing, containing exactly that string specified by the *always*-argument, that phrase will *always* be assigned the style of the *always*-argument rather than any from the pool of styles from which simple or argument phrases retrieve their formatting. In the basic-usage example, "<small>" is an *always* phrase because the user notified ecstasy that it should always pick the associated style when it encounters the string "small" (i.e. the phrase "<small>"), by explicitly passing small=ecstasy.Style.Invert | ecstasy.Color.White to ecstasy.beautify() using the keyword syntax. There are ways to override this '*always*' behaviour, explained in the section on arguments.
 
 Nesting
-------X
+-------
 
 It is important to mention that phrases (and any type thereof) can be nested. Nested styles cascade, i.e. in a nested phrase, all children phrases assume the style of the parent phrase unless a categorically-equivalent flag is supplied to a child phrase that overrides the parent flag in that category. Take, for example, the string "<a <b> c <d>>". First of all, here, three styles must be supplied to ecstasy.beautify() as the internal counter does not consider nesting in any way (one simple phrase = one extra style). If the first style (index 0 in the pool), that of the outermost phrase (<a ...>) includes the color red (ecstasy.Color.Red), then by default everything inside this phrase will be colored red, i.e. the characters 'a', 'b', 'c' and 'd'. If, now, b's style (at index 1 in the pool) contains the blinking command (ecstasy.Style.Blink), b will blink in red. The character 'c', however, will only be red again (the style is reset to the parent style after a nested phrase has been parsed). At the same time, if the flag combination at index 2 in the pool contains ecstasy.Color.Blue, this will override the categorically-equivalent parent flag ecstasy.Color.Red (because both are from the ecstasy.Color enum). 
 
@@ -125,7 +130,7 @@ It is possible to specify more than one positional argument, separated from one 
 In this case, there are multiple positional arguments for the phrase "Llama". They are combined (as if it had been done manually via bitwise-OR) and the resulting string has a green color and also blinks.
 
 Modifiers
---------X
+---------
 
 When ecstasy finds a phrase that matches one of its *always*-phrases, it will, normally, pick the style associated with the always argument and assign it to the phrase. Ecstasy allows alterations to this standard behaviour with the modifier operators '!' and '+'. The types of alterations depend on the phrase category. When and why is this useful? Mainly when you have multiple phrases matching a certain *always*-argument and you want most of them styled uniformly, but you would like to make an exception for one or a few of these phrases (exempt them from the *always* rule).
 
@@ -231,10 +236,10 @@ Here, the positional-styles entirely override the *always*-style and "Batman" ha
 Flags
 =====
 
-There are (currently) 41 style, text color and fill color flags that you can supply to ecstasy to beautify your strings. You may access style flags via the ecstasy.Style enum (brought to package-level from the ecstasy.flags module), the color flags via the ecstasy.Color enum and the fill flags you can find in ecstasy.Fill. Note that while you can specify as many (unique) style flags as you want, color and fill flags will override each other, i.e. the one with the highest position in the respective enum will override previous flags --X you can only have exactly *one* text color and exactly *one* fill color, so just never supply more than one.
+There are (currently) 41 style, text color and fill color flags that you can supply to ecstasy to beautify your strings. You may access style flags via the ecstasy.Style enum (brought to package-level from the ecstasy.flags module), the color flags via the ecstasy.Color enum and the fill flags you can find in ecstasy.Fill. Note that while you can specify as many (unique) style flags as you want, color and fill flags will override each other, i.e. the one with the highest position in the respective enum will override previous flags -- you can only have exactly *one* text color and exactly *one* fill color, so just never supply more than one.
 
 Available Flags
---------------X
+---------------
 
 \
 
@@ -300,7 +305,7 @@ Here the output, ordered as above:
     :alt: illuminati was here
 
 Passing Flags
-------------X
+-------------
 
 There are two ways to pass flags to ecstasy. The first method has been shown in this document all along: individually passing positional and keyword arguments to ecstasy.beautify:
 
@@ -436,12 +441,12 @@ Terminal Support
 Terminal    Bold  Dim  Underlined  Blink  Invert  Hidden  Color
 ==========  ====  ===  ==========  =====  ======  ======  =====
 aTerm        ✓     X       ✓        X       ✓       X       ✓
-Eterm        1)    X       ✓        X       ✓       X       ✓
+Eterm       (\1)   X       ✓        X       ✓       X       ✓
 GNOME        ✓     ✓       ✓        X       ✓       ✓       ✓
 Guake        ✓     ✓       ✓        X       ✓       ✓       ✓
 Konsole      ✓     X       ✓        ✓       ✓       X       ✓
 Nautilus     ✓     ✓       ✓        X       ✓       ✓       ✓
-rxvt         ✓     X       ✓        2)      ✓       X       ✓
+rxvt         ✓     X       ✓       (\2)     ✓       X       ✓
 Terminator   ✓     ✓       ✓        X       ✓       ✓       ✓
 Tilda        ✓     X       ✓        X       ✓       X       ✓
 XFCE4        ✓     ✓       ✓        X       ✓       ✓       ✓
@@ -453,9 +458,9 @@ VTE          ✓     ✓       ✓        X       ✓       ✓       ✓
 
 \
 
-1) Lighter colors instead of bold.
+(\1) Lighter colors instead of bold.
 
-2) Lighter colors instead of blink.
+(\2) Lighter colors instead of blink.
 
 Source Code
 ===========

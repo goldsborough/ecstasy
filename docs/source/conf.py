@@ -12,6 +12,8 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
+import alabaster
+
 import sys
 import os
 
@@ -35,7 +37,8 @@ extensions = [
     'sphinx.ext.coverage',
     'sphinx.ext.mathjax',
     'sphinx.ext.viewcode',
-    'sphinx.ext.napoleon'
+    'sphinx.ext.napoleon',
+    'alabaster'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -120,14 +123,22 @@ html_theme = 'alabaster'
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
-#html_theme_options = {}
+html_theme_options = {
+    'github_user': 'goldsborough',
+    'github_repo': 'ecstasy',
+    'github_banner': True,
+    'github_button': True,
+    'travis_button': True,
+    'gratipay_user': "goldsborough",
+    'extra_nav_links': {"Github Repository": "github.com/goldsborough/ecstasy"}
+}
 
 # Add any paths that contain custom themes here, relative to this directory.
-#html_theme_path = []
+html_theme_path = [alabaster.get_path()]
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
-#html_title = None
+html_title = "ecstasy"
 
 # A shorter title for the navigation bar.  Default is the same as html_title.
 #html_short_title = None

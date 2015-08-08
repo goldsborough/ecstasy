@@ -2,6 +2,8 @@
 Ecstasy
 *******
 
+.. image:: img.shields.io/gratipay/goldsborough.svg
+
 Ecstasy is here to make your command-line tool beautiful and fancy.
 
 **Your command-line tool's output without ecstasy:**
