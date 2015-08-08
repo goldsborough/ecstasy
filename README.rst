@@ -1,24 +1,35 @@
-*******
-Ecstasy
-*******
-
-.. image:: https://travis-ci.org/goldsborough/ecstasy.svg?branch=master
-    :target: https://travis-ci.org/goldsborough/ecstasy
-
-.. image:: https://codeclimate.com/github/goldsborough/ecstasy/badges/gpa.svg
-   :target: https://codeclimate.com/github/goldsborough/ecstasy
-
-.. image:: https://img.shields.io/github/license/mashape/apistatus.svg
-	:target: http://goldsborough.mit-license.org
-
-.. image:: https://pypip.in/d/ecstasy/badge.png
-    :target: https://crate.io/packages/ecstasy/
-
-.. image:: https://badge.fury.io/py/ecstasy.svg
-    :target: http://badge.fury.io/py/ecstasy
-
-.. image:: http://img.shields.io/gratipay/goldsborough.svg
-	:target: http://img.shields.io/gratipay/goldsborough
+.. raw:: html
+	
+	<div align="center">
+	<h1>
+		<span style="color: #2F2BAD">E</span>
+		<span style="color: #AD2BAD">c</span>
+		<span style="color: #E42692">s</span>
+		<span style="color: #F71568">t</span>
+		<span style="color: #F7DB15">a</span>
+		<span style="color: #2F2BAD">s</span>
+		<span style="color: #AD2BAD">y</span>
+	</h1>
+	<br>
+	<a href='https://travis-ci.org/goldsborough/ecstasy'>
+		<img src='https://travis-ci.org/goldsborough/ecstasy.svg?branch=master?branch=master'/>
+	</a>
+	<a href='https://codeclimate.com/github/goldsborough/ecstasy'>
+		<img src='https://codeclimate.com/github/goldsborough/ecstasy/badges/gpa.svg'/>
+	</a>
+	<a href='http://goldsborough.mit-license.org'>
+		<img src='https://img.shields.io/github/license/mashape/apistatus.svg'/>
+	</a>
+	<a href='http://badge.fury.io/py/ecstasy'>
+		<img src='https://badge.fury.io/py/ecstasy.svg'/>
+	</a>
+	<a href='https://coveralls.io/github/goldsborough/ecstasy?branch=master'>
+		<img src='https://coveralls.io/repos/goldsborough/ecstasy/badge.svg?branch=master&service=github?branch=master&service=github'/>
+	</a>
+	<a href='http://img.shields.io/gratipay/goldsborough'>
+		<img src='http://img.shields.io/gratipay/goldsborough.svg'/>
+	</a>
+	</div>
 
 \
 
@@ -79,7 +90,7 @@ Now that you're convinced, you can install ecstasy with pip:
 ... and get crackin'.
 
 `Documentation <http://ecstasy.readthedocs.org/en/latest/>`_
-=============
+============================================================
 
 Full documentation and usage descriptions specifying all possible options and possibilities of how you can beautify your strings with *ecstasy* can be found `here <http://ecstasy.readthedocs.org/en/latest/>`_.
 
@@ -122,7 +133,7 @@ VTE          ✓     ✓       ✓        X       ✓       ✓       ✓
 (\2) Lighter colors instead of blink.
 
 `License <http://goldsborough.mit-license.org>`_
-=======
+================================================
 
 Ecstasy is released under the `MIT license <http://goldsborough.mit-license.org>`_.
 
