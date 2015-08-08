@@ -17,7 +17,7 @@ with open('ecstasy/__init__.py', 'r') as init:
 	version = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]',
 						init.read(), re.MULTILINE).group(1)
 
-with open('README.rst', encoding='utf-8') as readme:
+with open('docs/README.rst', encoding='utf-8') as readme:
 	long_description = readme.read()
 
 setup(
