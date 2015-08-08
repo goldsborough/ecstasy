@@ -4,15 +4,23 @@ Ecstasy
 
 .. image:: https://travis-ci.org/goldsborough/ecstasy.svg?branch=master
     :target: https://travis-ci.org/goldsborough/ecstasy
-    :alt: Build Status
 
 .. image:: https://codeclimate.com/github/goldsborough/ecstasy/badges/gpa.svg
    :target: https://codeclimate.com/github/goldsborough/ecstasy
-   :alt: Code Climate
+
+.. image:: https://img.shields.io/github/license/mashape/apistatus.svg
+	:target: http://goldsborough.mit-license.org
+
+.. image:: https://img.shields.io/pypi/v/nine.svg
+	:target: https://pypi.python.org/pypi/ecstasy
+
+.. image:: https://img.shields.io/pypi/dm/Django.svg
+	:target: https://pypi.python.org/pypi/ecstasy
 
 .. image:: http://img.shields.io/gratipay/goldsborough.svg
 	:target: http://img.shields.io/gratipay/goldsborough
-	:alt: <3
+
+\
 
 Ecstasy is here to make your command-line tool beautiful and fancy.
 
@@ -78,12 +86,45 @@ Full documentation and usage descriptions specifying all possible options and po
 Compatibility
 =============
 
-According to `pyqver <https://github.com/ghewgill/pyqver/>`_, the minimum required Python version is 2.6. Definitely successfully tested with Python 2.7.10 and Python 3.4.3.
+Python Versions
+---------------
 
-License
+Built with Python 3.4 and Python 2.7. Additionally successfully backported to and tested with Python 2.6, 3.2 and also 3.3.
+
+Terminal Support
+----------------
+
+Works out of the box with your Mac's terminal. For more information, please enjoy this table:
+
+==========  ====  ===  ==========  =====  ======  ======  =====
+Terminal    Bold  Dim  Underlined  Blink  Invert  Hidden  Color
+==========  ====  ===  ==========  =====  ======  ======  =====
+aTerm        ✓     X       ✓        X       ✓       X       ✓
+Eterm       (\1)   X       ✓        X       ✓       X       ✓
+GNOME        ✓     ✓       ✓        X       ✓       ✓       ✓
+Guake        ✓     ✓       ✓        X       ✓       ✓       ✓
+Konsole      ✓     X       ✓        ✓       ✓       X       ✓
+Nautilus     ✓     ✓       ✓        X       ✓       ✓       ✓
+rxvt         ✓     X       ✓       (\2)     ✓       X       ✓
+Terminator   ✓     ✓       ✓        X       ✓       ✓       ✓
+Tilda        ✓     X       ✓        X       ✓       X       ✓
+XFCE4        ✓     ✓       ✓        X       ✓       ✓       ✓
+XTerm        ✓     X       ✓        ✓       ✓       ✓       ✓
+xvt          ✓     X       ✓        X       ✓       X       X
+Linux TTY    ✓     X       X        X       ✓       X       ✓
+VTE          ✓     ✓       ✓        X       ✓       ✓       ✓
+==========  ====  ===  ==========  =====  ======  ======  =====
+
+\
+
+(\1) Lighter colors instead of bold.
+
+(\2) Lighter colors instead of blink.
+
+`License <http://goldsborough.mit-license.org>`_
 =======
 
-Ecstasy is released under the MIT license (see the LICENSE file).
+Ecstasy is released under the `MIT license <http://goldsborough.mit-license.org>`_.
 
 Authors
 =======
