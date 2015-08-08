@@ -127,8 +127,7 @@ html_theme_options = {
     'github_user': 'goldsborough',
     'github_repo': 'ecstasy',
     'github_banner': True,
-    'github_button': True,
-    'travis_button': True,
+    'travis_button': "true",
     'gratipay_user': "goldsborough",
     'extra_nav_links': {"Github Repository": "github.com/goldsborough/ecstasy"}
 }

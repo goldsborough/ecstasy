@@ -2,7 +2,13 @@
 Ecstasy
 *******
 
-.. image:: img.shields.io/gratipay/goldsborough.svg
+.. image:: http://img.shields.io/gratipay/goldsborough.svg
+	:target: http://img.shields.io/gratipay/goldsborough
+	:alt: :(
+
+.. image:: https://codeclimate.com/github/goldsborough/ecstasy/badges/gpa.svg
+   :target: https://codeclimate.com/github/goldsborough/ecstasy
+   :alt: Code Climate
 
 Ecstasy is here to make your command-line tool beautiful and fancy.
 
@@ -60,7 +66,7 @@ Now that you're convinced, you can install ecstasy with pip:
 
 ... and get crackin'.
 
-Documentation
+`Documentation <http://ecstasy.readthedocs.org/en/latest/>`_
 =============
 
 Full documentation and usage descriptions specifying all possible options and possibilities of how you can beautify your strings with *ecstasy* can be found `here <http://ecstasy.readthedocs.org/en/latest/>`_.
