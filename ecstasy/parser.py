@@ -72,14 +72,6 @@ class Phrase(object):
 	def __str__(self):
 		return self.string
 
-	def __repr__(self):
-		return ("<'{}': start: {}, end: {}, args: {}, "
-			   "nested: {}, override: {}, increment: {}"
-			   ">".format(self.string, self.opening,
-			   			  self.closing, self.arguments,
-			   			  self.nested, self.override,
-			   			  self.increment))
-
 	def __eq__(self, other):
 		return (self.string == other.string			and
 				self.opening == other.opening 		and
@@ -196,7 +188,7 @@ class Parser(object):
 			# with another flag (a "flag combination")
 			elif isinstance(argument, int):
 				if argument < 0 or argument >= flags.LIMIT:
-					raise errors.FlagError("Flag value '{}' is out of range "
+					raise errors.FlagError("Flag value '{0}' is out of range "
 										   "!".format(argument))
 				positional.append(argument)
 
@@ -215,7 +207,7 @@ class Parser(object):
 						for i in key:
 							self.always[i] = value
 					else:
-						raise errors.EcstasyError("Key '{}' in dictionary "
+						raise errors.EcstasyError("Key '{0}' in dictionary "
 												  "argument passed is neither "
 												  "a string nor a tuple "
 												  "of strings!".format(key))
@@ -224,7 +216,7 @@ class Parser(object):
 				positional += self.get_flags(argument)
 
 			else:
-				raise errors.EcstasyError("Argument '{}' is neither a flag, a "
+				raise errors.EcstasyError("Argument '{0}' is neither a flag, a "
 										  "(bitwise) OR'd flag-combination, a "
 										  "dictionary nor an  iterable of "
 										  "positional arguments "
@@ -293,8 +285,7 @@ class Parser(object):
 							   found for an opening tag.
 		"""
 
-		if not root:
-			phrases = []
+		phrases = []
 
 		meta = self.meta.search(string)
 
@@ -306,13 +297,10 @@ class Parser(object):
 			if meta.group() == "<":
 				string, child, meta = self.open_phrase(string, pos)
 
-				if child:
-					if root:
-						root.nested.append(child)
-					else:
-						if isinstance(child, str):
-							raise RuntimeError
-						phrases.append(child)
+				if child and root:
+					root.nested.append(child)
+				elif child:
+					phrases.append(child)
 
 				# else it was escaped (+ new meta)
 				continue
@@ -351,7 +339,7 @@ class Parser(object):
 		what = "No closing tag found for opening tag"
 
 		if word:
-			what += " after expression '{}'".format(word.group())
+			what += " after expression '{0}'".format(word.group())
 
 		raise errors.ParseError(what + "!")
 
@@ -376,7 +364,7 @@ class Parser(object):
 		if pos > 0 and string[pos - 1] == "\\":
 			string = string[:pos - 1] + string[pos:]
 		else:
-			warnings.warn("Un-escaped meta-character: '{}' (Escape"
+			warnings.warn("Un-escaped meta-character: '{0}' (Escape"
 						  " it with a '\\')".format(string[pos]),
 						  Warning)
 			pos += 1
@@ -586,7 +574,7 @@ class Parser(object):
 					try:
 						combination |= self.positional[i]
 					except IndexError:
-						raise errors.ArgumentError("Positional argument '{}' "
+						raise errors.ArgumentError("Positional argument '{0}' "
 							 					   "is out of range"
 							 					   "!".format(i))
 
@@ -600,16 +588,8 @@ class Parser(object):
 					if phrase.increment or not phrase.override:
 						self.counter += 1
 				except IndexError:
-					requested = errors.number(self.counter + 1)
-					number = len(self.positional)
-					available = "was" if number == 1 else "were"
-					raise errors.ArgumentError("Requested {} formatting "
-											   "argument for '{}' but only "
-											   "{} {} supplied"
-											   "!".format(requested,
-											   			  phrase.string,
-											   			  number,
-											   			  available))
+					self.raise_not_enough_arguments(phrase.string)
+
 				phrase.style |= combination
 
 			phrase.style = flags.codify(phrase.style)
@@ -624,12 +604,39 @@ class Parser(object):
 			reset = parent.style if parent else ""
 
 			# \033[ signifies the start of a command-line escape-sequence
-			beauty += "\033[{}m{}\033[0;{}m".format(phrase.style,
-													phrase,
-													reset)
+			beauty += "\033[{0}m{1}\033[0;{2}m".format(phrase.style,
+													   phrase,
+													   reset)
 			last_tag = phrase.closing + 1
 
-		if last_tag < len(string):
-			beauty += string[last_tag:]
+		beauty += string[last_tag:]
 
 		return beauty
+
+	def raise_not_enough_arguments(self, string):
+
+		"""
+		Raises an errors.ArgumentError if not enough arguments were supplied.
+
+		Takes care of formatting for detailed error messages.
+
+		Arguments:
+			string (str): The string of the phrase for which there weren't enough
+						  arguments.
+
+		Raises:
+			errors.ArgumentError with a detailed error message.
+		"""
+
+		requested = errors.number(self.counter + 1)
+
+		number = len(self.positional)
+
+		verb = "was" if number == 1 else "were"
+
+		what = "Requested {} formatting argument for "\
+			   "'{}' but only {} {} supplied!"
+
+		what = what.format(requested, string, number, verb)
+
+		raise errors.ArgumentError(what)

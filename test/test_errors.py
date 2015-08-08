@@ -1,15 +1,16 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import os
 import sys
+import unittest2
 
 sys.path.insert(0, os.path.abspath('..'))
 
-import unittest
-
 import ecstasy.errors as errors
 
-class TestErrors(unittest.TestCase):
+
+class TestErrors(unittest2.TestCase):
 
 	def test_error_message_retrieval(self):
 
@@ -79,7 +80,7 @@ class TestErrors(unittest.TestCase):
 		self.assertEqual(errors.number(8000000), "an 8,000,000th")
 
 def main():
-	unittest.main()
+	unittest2.main()
 
 if __name__ == "__main__":
 	main()

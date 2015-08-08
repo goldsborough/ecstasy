@@ -57,5 +57,5 @@ setup(
 
 	packages=find_packages(exclude=['contrib', 'docs', 'tests*']),
 
-	install_requires=['enum34']
+	install_requires=['enum34', 'unittest2']
 )

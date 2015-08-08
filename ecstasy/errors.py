@@ -135,7 +135,7 @@ def position(string, index):
 
 	# index - before to have only the
 	# index within the relevant line
-	return "{}:{}".format(n, index - before)
+	return "{0}:{1}".format(n, index - before)
 
 def number(digit):
 	"""
@@ -190,4 +190,4 @@ def warn(what, string, pos):
 
 	pos = position(string, pos)
 
-	warnings.warn("{} at position {}!".format(what, pos), Warning)
+	warnings.warn("{0} at position {1}!".format(what, pos), Warning)

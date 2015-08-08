@@ -1,18 +1,18 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import os
 import sys
+import unittest2
+import collections
 
 sys.path.insert(0, os.path.abspath('..'))
-
-import unittest
-import collections
 
 import ecstasy.parser as parser
 import ecstasy.errors as errors
 import ecstasy.flags as flags
 
-class TestParserGetFlags(unittest.TestCase):
+class TestParserGetFlags(unittest2.TestCase):
 
 	def setUp(self):
 
@@ -86,7 +86,7 @@ class TestParserGetFlags(unittest.TestCase):
 			self.assertEqual(self.dict_always[self.tuple_always],
 							 self.parser.always[i])
 
-class TestEmptyParserGetFlags(unittest.TestCase):
+class TestEmptyParserGetFlags(unittest2.TestCase):
 
 	def setUp(self):
 		self.parser = parser.Parser(None, None)
@@ -95,21 +95,21 @@ class TestEmptyParserGetFlags(unittest.TestCase):
 
 		positional = self.parser.get_flags([1, 2])
 
-		self.assertSequenceEqual(positional, [1, 2])
+		self.assertListEqual(positional, [1, 2])
 
 		self.parser.get_flags((1, 2))
 
-		self.assertSequenceEqual(positional, [1, 2])
+		self.assertListEqual(positional, [1, 2])
 
 		self.parser.get_flags(set([1, 2]))
 
-		self.assertSequenceEqual(positional, [1, 2])
+		self.assertListEqual(positional, [1, 2])
 
 		Iterable = collections.namedtuple("Iterable", "x, y")
 
 		self.parser.get_flags(Iterable(1, 2))
 
-		self.assertSequenceEqual(positional, [1, 2])
+		self.assertListEqual(positional, [1, 2])
 
 	def test_recognizes_invalid_flag_combination(self):
 
@@ -145,7 +145,7 @@ class TestEmptyParserGetFlags(unittest.TestCase):
 						  self.parser.get_flags,
 						  [{None: flags.Style.Bold}])
 
-class TestBeautify(unittest.TestCase):
+class TestBeautify(unittest2.TestCase):
 
 	def setUp(self):
 
@@ -162,7 +162,7 @@ class TestBeautify(unittest.TestCase):
 		self.assertEqual(self.parser.beautify("batman spiderman"),
 						 "batman spiderman")
 
-class TestParserParse(unittest.TestCase):
+class TestParserParse(unittest2.TestCase):
 
 	def setUp(self):
 
@@ -293,7 +293,7 @@ class TestParserParse(unittest.TestCase):
 
 	def test_warns_about_unescaped_meta_characters(self):
 
-		if sys.version_info.major == 3 and sys.version_info.minor >= 2:
+		if sys.version_info[0] == 3 and sys.version_info[1] >= 2:
 
 			self.assertWarns(Warning,
 							 self.parser.parse,
@@ -325,7 +325,7 @@ class TestParserParse(unittest.TestCase):
 						  self.parser.parse,
 						  "<(?)asdf>")
 
-class TestParserStringify(unittest.TestCase):
+class TestParserStringify(unittest2.TestCase):
 
 	def setUp(self):
 
@@ -347,8 +347,8 @@ class TestParserStringify(unittest.TestCase):
 
 		result = self.parser.beautify("<abc> <def>")
 
-		expected = "\033[{}mabc\033[0;m ".format(self.codes[0])
-		expected += "\033[{}mdef\033[0;m".format(self.codes[1])
+		expected = "\033[{0}mabc\033[0;m ".format(self.codes[0])
+		expected += "\033[{0}mdef\033[0;m".format(self.codes[1])
 
 		self.assertEqual(result, expected)
 
@@ -361,7 +361,7 @@ class TestParserStringify(unittest.TestCase):
 		expected = "\033[{0}m\033[{1}mabc\033[0;{0}m".format(self.codes[0],
 												 		     self.codes[1])
 
-		expected += " \033[{}mdef\033[0;{}m\033[0;m".format(self.codes[2],
+		expected += " \033[{0}mdef\033[0;{1}m\033[0;m".format(self.codes[2],
 												 		    self.codes[0])
 
 		self.assertEqual(result, expected)
@@ -370,8 +370,8 @@ class TestParserStringify(unittest.TestCase):
 		
 		result = self.parser.beautify("<(0)abc> <(-1)def>")
 
-		expected = "\033[{}mabc\033[0;m ".format(self.codes[0])
-		expected += "\033[{}mdef\033[0;m".format(self.codes[-1])
+		expected = "\033[{0}mabc\033[0;m ".format(self.codes[0])
+		expected += "\033[{0}mdef\033[0;m".format(self.codes[-1])
 
 		self.assertEqual(result, expected)
 
@@ -383,7 +383,7 @@ class TestParserStringify(unittest.TestCase):
 		expected = "\033[{0}m\033[{1}mabc\033[0;{0}m".format(self.codes[1],
 												 		     self.codes[0])
 
-		expected += " \033[{}mdef\033[0;{}m\033[0;m".format(self.codes[-2],
+		expected += " \033[{0}mdef\033[0;{0}m\033[0;m".format(self.codes[-2],
 												 		    self.codes[1])
 
 		self.assertEqual(result, expected)
@@ -392,7 +392,7 @@ class TestParserStringify(unittest.TestCase):
 
 		result = self.parser.beautify("<always>")
 
-		expected = "\033[{}malways\033[0;m".format(self.always_code)
+		expected = "\033[{0}malways\033[0;m".format(self.always_code)
 
 		self.assertEqual(result, expected)
 
@@ -402,7 +402,7 @@ class TestParserStringify(unittest.TestCase):
 
 		combined = flags.codify(self.always["always"] | self.positional[0])
 
-		expected = "\033[{}malways\033[0;m".format(combined)
+		expected = "\033[{0}malways\033[0;m".format(combined)
 
 		self.assertEqual(result, expected)
 
@@ -411,7 +411,7 @@ class TestParserStringify(unittest.TestCase):
 
 		result = self.parser.beautify("<(0!)always>")
 
-		expected = "\033[{}malways\033[0;m".format(self.codes[0])
+		expected = "\033[{0}malways\033[0;m".format(self.codes[0])
 
 		self.assertEqual(result, expected)
 
@@ -446,7 +446,7 @@ class TestParserStringify(unittest.TestCase):
 		self.assertEqual(result, expected)
 
 def main():
-	unittest.main()
+	unittest2.main()
 
 if __name__ == "__main__":
 	main()

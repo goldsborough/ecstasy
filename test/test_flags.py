@@ -1,16 +1,16 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import os
 import sys
+import unittest2
 
 sys.path.insert(0, os.path.abspath('..'))
-
-import unittest
 
 import ecstasy.flags as flags
 import ecstasy.errors as errors
 
-class TestCodify(unittest.TestCase):
+class TestCodify(unittest2.TestCase):
 
 	def test_codifies_single_flag(self):
 
@@ -30,14 +30,14 @@ class TestCodify(unittest.TestCase):
 
 		combination = flags.Style.Underline | flags.Style.Blink
 
-		expected = "{};{}".format(flags.Style.Underline,
+		expected = "{0};{1}".format(flags.Style.Underline,
 				 				  flags.Style.Blink)
 
 		self.assertEqual(flags.codify(combination), expected)
 
 		combination = flags.Color.Red | flags.Fill.Black
 
-		expected = "{};{}".format(flags.Color.Red,
+		expected = "{0};{1}".format(flags.Color.Red,
 								  flags.Fill.Black)
 
 		self.assertEqual(flags.codify(combination), expected)
@@ -57,7 +57,7 @@ class TestCodify(unittest.TestCase):
 				  flags.LIMIT + 100)
 
 def main():
-	unittest.main()
+	unittest2.main()
 
 if __name__ == "__main__":
 	main()
