@@ -1,6 +1,6 @@
 # [Changelog](github.com/goldborough/ecstasy/releases)
 
-## [0.1.1](github.com/goldborough/ecstasy/compare/0.1.0...0.1.1)
+## 0.1.3
 
 * [8d8b16a](github.com/goldborough/ecstasy/commit/8d8b16a) More shields <3
 * [b5dd555](github.com/goldborough/ecstasy/commit/b5dd555) Modifying README.md

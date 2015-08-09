@@ -29,15 +29,13 @@ Ecstasy is here to make your command-line tool beautiful and fancy.
 
 **Your command-line tool's output without ecstasy:**
 
-.. image:: docs/img/without.png
-	:alt: Y U NO WORK?!
+.. image:: https://raw.githubusercontent.com/goldsborough/ecstasy/master/docs/img/without.png
 
 \
 
 **Your command-line tool's output with (on?) ecstasy:**
 
-.. image:: docs/img/with.gif
-	:alt: Y U NO WORK?!
+.. image:: https://raw.githubusercontent.com/goldsborough/ecstasy/master/docs/img/with.gif
 
 Usage
 =====
@@ -67,8 +65,7 @@ To use ecstasy, you mark up a standard Python string using ecstasy's special syn
 
 Running this in a script from a command-line outputs:
 
-.. image:: docs/img/usage.gif
-	:alt: Badassery
+.. image:: https://raw.githubusercontent.com/goldsborough/ecstasy/master/docs/img/usage.gif
 
 Installation
 ============
