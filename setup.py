@@ -55,5 +55,7 @@ setup(
 
 	keywords='command-line tools formatting styling beautifier markup',
 
-	packages=find_packages(exclude=['contrib', 'docs', 'tests*'])
+	packages=find_packages(exclude=['contrib', 'docs', 'tests*']),
+
+	test_suite="test"
 )

@@ -231,7 +231,7 @@ Here, the positional-styles entirely override the *always*-style and "Batman" ha
 
     ::
 
-    ^(X?\d,?)+!?$|^!?(X?\d,?)+$|^(!\+?|\+!?)$
+    ^(-?\d,?)+!?$|^!?(-?\d,?)+$|^(!\+?|\+!?)$
 
 Flags
 =====
@@ -256,7 +256,6 @@ Available Flags
 
 * Text Color (ecstasy.Color)
 
-    #. Default (your terminal's default text color)
     #. Black
     #. DarkRed
     #. DarkGreen
@@ -281,7 +280,6 @@ Here the output, ordered as above:
 
 * Fill Color (ecstasy.Fill)
 
-    #. Default (your terminal's default background)
     #. Black
     #. DarkRed
     #. DarkGreen
@@ -388,7 +386,7 @@ Here is a complete and working example demonstrating the full power of *ecstasy*
 ::
 
     #!/usr/bin/env python
-    # X*X coding: utf-8 X*X
+    # -*- coding: utf-8 -*-
 
     from __future__ import print_function
 
@@ -399,7 +397,7 @@ Here is a complete and working example demonstrating the full power of *ecstasy*
         text = "<Beware><(0) the <Jabberwock, my <son>>>!\n"\
                "The <jaws> <(-2)that> <bite>, <(-1)the> <(2)claws> that <(3)catch>!\n"\
                "<(0)One>, <two>! <(0!)One>, <(!)two>!\n"\
-               "The <(0,1)vorpal> <blade went> <snickerX<snack>>!"
+               "The <(0,1)vorpal> <blade went> <snicker-<snack>>!"
 
         formats = [
             ecstasy.Fill.Yellow,
