@@ -130,3 +130,8 @@ Authors
 =======
 
 Peter Goldsborough & `cat <https://goo.gl/IpUmJn>`_ :heart:
+
+
+.. image:: https://badges.gitter.im/Join%20Chat.svg
+   :alt: Join the chat at https://gitter.im/goldsborough/ecstasy
+   :target: https://gitter.im/goldsborough/ecstasy?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
