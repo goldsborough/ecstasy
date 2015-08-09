@@ -12,5 +12,11 @@ script: coverage run --include="./*" -m unittest2
 notifications:
   email: 
     - petergoldsborough@hotmail.com
+  webhooks:
+    urls:
+      - https://webhooks.gitter.im/e/cf3c1a4b0a8323d045fc
+    on_success: change
+    on_failure: always
+    on_start: false
 after_success:
   - coveralls
