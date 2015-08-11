@@ -20,6 +20,16 @@ with open('ecstasy/__init__.py', 'r') as init:
 with open('README.rst', encoding='utf-8') as readme:
 	long_description = readme.read()
 
+requirements = [
+	"enum34==1.0.4"
+]
+
+test_requirements = [
+	"unittest2==1.1.0",
+	"python-coveralls==2.5.0",
+	"tox==2.1.1"
+]
+
 setup(
 	name='ecstasy',
 
@@ -55,7 +65,13 @@ setup(
 
 	keywords='command-line tools formatting styling beautifier markup',
 
+	include_package_data=True,
+
 	packages=find_packages(exclude=['contrib', 'docs', 'tests*']),
 
-	test_suite="test"
+	install_requires=requirements,
+
+	test_suite="tests",
+
+	tests_require=test_requirements
 )

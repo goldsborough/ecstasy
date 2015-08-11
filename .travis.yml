@@ -20,3 +20,4 @@ notifications:
     on_start: false
 after_success:
   - coveralls
+  
