@@ -7,17 +7,15 @@ setup.py script for setuptools.
 
 import re
 
-from codecs import open
-
 from setuptools import setup, find_packages
 
 version = ''
 
-with open('ecstasy/__init__.py', 'r') as init:
+with open('ecstasy/__init__.py') as init:
 	version = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]',
 						init.read(), re.MULTILINE).group(1)
 
-with open('README.rst', encoding='utf-8') as readme:
+with open('README.rst') as readme:
 	long_description = readme.read()
 
 requirements = [
@@ -26,8 +24,7 @@ requirements = [
 
 test_requirements = [
 	"unittest2==1.1.0",
-	"python-coveralls==2.5.0",
-	"tox==2.1.1"
+	"python-coveralls==2.5.0"
 ]
 
 setup(
@@ -67,7 +64,7 @@ setup(
 
 	include_package_data=True,
 
-	packages=find_packages(exclude=['contrib', 'docs', 'tests*']),
+	packages=find_packages(exclude=['contrib', 'docs', 'test*']),
 
 	install_requires=requirements,
 

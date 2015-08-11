@@ -21,7 +21,7 @@ Ecstasy
 	:target: https://codeclimate.com/github/goldsborough/ecstasy
 
 .. image:: http://img.shields.io/gratipay/goldsborough.svg
-	:target: http://img.shields.io/gratipay/goldsborough
+	:target: https://gratipay.com/~goldsborough/
 
 \
 
